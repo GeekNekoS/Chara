@@ -21,11 +21,14 @@
 # Project structure
     Notification_bot
     ├── module/
+    │   │   ├── __init__.py
     │   ├── 
     │   └── 
     ├── images/
     │   ├── 1
+    │   │   ├── __init__.py
     │   ├── 2
+    │   │   ├── __init__.py
     ...
     │
     │
