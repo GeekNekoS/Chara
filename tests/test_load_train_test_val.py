@@ -1,7 +1,7 @@
 from module.load_train_test_val import load_train_test_val
 
 
-def test_dataset_load_and_split():
+def test_load_train_test_val():
     directory_path = 'TestDataset'
     batch_size = 8
     image_size = (224, 224)
