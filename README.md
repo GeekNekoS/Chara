@@ -21,8 +21,8 @@
 # Project structure
     Notification_bot
     ├── module/
-    │   ├── PASS
-    │   └── PASS
+    │   ├── 
+    │   └── 
     ├── images/
     │   ├── 1
     │   ├── 2
