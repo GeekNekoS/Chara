@@ -25,7 +25,7 @@
     │   ├── convert_image_name.py
     │   ├── create_model.py
     │   ├── edit_image_name.py
-    │   └── load_train_test.py
+    │   └── load_train_test_val.py
     ├── images/
     │   ├── 1
     │   │   ├── __init__.py
@@ -36,7 +36,7 @@
     │   ├── test_convert_image_name.py
     │   ├── test_create_model.py
     │   ├── test_edit_image_name.py
-    │   ├── test_load_train_test.py
+    │   ├── test_load_train_test_val.py
     ...
     │
     │
