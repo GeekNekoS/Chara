@@ -23,6 +23,11 @@
     ├── module/
     │   ├── PASS
     │   └── PASS
+    ├── images/
+    │   ├── 1
+    │   ├── 2
+    ...
+    │
     │
     ├── README.md                       # Project documentation
     └── requirements.txt                # File with dependencies
