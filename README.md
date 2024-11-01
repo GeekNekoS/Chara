@@ -19,7 +19,7 @@
 
 <a name="project_structure"></a> 
 # Project structure
-    Notification_bot
+    Chara
     ├── module/
     │   ├── __init__.py
     │   ├── convert_image_name.py
