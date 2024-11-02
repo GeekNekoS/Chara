@@ -28,7 +28,3 @@ def edit_image_name(datadir: str):
                     os.rename(file_path, new_file_path)
 
                     folder_counter[folder_path] += 1
-
-
-directory_path = "<path to directory>"
-edit_image_name(directory_path)
