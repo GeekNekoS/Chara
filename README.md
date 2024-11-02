@@ -19,10 +19,26 @@
 
 <a name="project_structure"></a> 
 # Project structure
-    Notification_bot
+    Chara
     ├── module/
-    │   ├── PASS
-    │   └── PASS
+    │   ├── __init__.py
+    │   ├── convert_image_name.py
+    │   ├── create_model.py
+    │   ├── edit_image_name.py
+    │   └── load_train_test_val.py
+    ├── images/
+    │   ├── 1
+    │   │   ├── __init__.py
+    │   ├── 2
+    │   │   ├── __init__.py
+    ├── tests/
+    │   ├── __init__.py
+    │   ├── test_convert_image_name.py
+    │   ├── test_create_model.py
+    │   ├── test_edit_image_name.py
+    │   ├── test_load_train_test_val.py
+    ...
+    │
     │
     ├── README.md                       # Project documentation
     └── requirements.txt                # File with dependencies
