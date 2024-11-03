@@ -1,8 +1,9 @@
+import tensorflow as tf
 import tensorflow.keras as keras
 from tensorflow.keras import layers
 
-def create_model(input_shape: tuple, num_classes: int):
 
+def create_model(input_shape: tuple, num_classes: int) -> tf.keras.Model:
     inputs = keras.Input(shape=input_shape)
     x = layers.Conv2D(64, 3, 1, activation='relu', padding='same')(inputs)
     x = layers.BatchNormalization()(x)
