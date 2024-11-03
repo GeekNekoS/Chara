@@ -1,5 +1,6 @@
 from load_train_test_val import load_train_test_val
 from create_model import create_model
+from evaluate_model import evaluate_model
 import numpy as np
 import keras
 
@@ -12,5 +13,5 @@ def train_model(directory: str,
     model.fit(train_dataset,
               test_dataset,
               batch_size,
-              validation_data=val_dataset,
               callbacks=keras.callbacks.EarlyStopping())
+    evaluate_model(model, val_dataset)
