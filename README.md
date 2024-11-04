@@ -12,7 +12,8 @@
 
 <a name="setting_up_a_project"></a> 
 ## Setting up a project
- - Select the Python version: 3.9
+ - Select the Python version: 3.11.0rc1 WSL
+ - Launch Virtual Environment in command line Ubuntu WSL in Pycharm: `source /home/<username>/.virtualenvs/Chara/bin/activate`
  - Install dependencies:  `pip install -r requirements.txt`
 <br /> <br />
 
@@ -27,10 +28,7 @@
     │   ├── edit_image_name.py
     │   └── load_train_test_val.py
     ├── images/
-    │   ├── 1
-    │   │   ├── __init__.py
-    │   ├── 2
-    │   │   ├── __init__.py
+    │   └── __init__.py
     ├── tests/
     │   ├── __init__.py
     │   ├── test_convert_image_name.py
@@ -39,7 +37,7 @@
     │   ├── test_load_train_test_val.py
     ...
     │
-    │
+    ├── DockerFile                      # Launch Project in Docker
     ├── README.md                       # Project documentation
     └── requirements.txt                # File with dependencies
 <br /> <br />
