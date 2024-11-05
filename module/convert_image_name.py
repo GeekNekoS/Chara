@@ -2,7 +2,7 @@ import os
 from PIL import Image
 from pathlib import Path
 
-def convert_image_name_to_jpg(source_dir:str):
+def convert_image_name(source_dir:str):
     """
     Аргументы:
     nameDir (str): Путь к директории с изображениями.
