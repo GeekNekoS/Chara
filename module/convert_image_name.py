@@ -3,21 +3,20 @@ import os
 from PIL import Image
 from pathlib import Path
 
+
 logger = setup_logger("convert_image_name")
-
-
-def convert_image_name(source_dir: str):
+def convert_image_name(source_dir: str, target_dir: str) -> None:
     """
     Аргументы:
-    nameDir (str): Путь к директории с изображениями.
+    source_dir (str): Путь к директории с изображениями.
+    target_dir (str): Путь к новой директории с изображениями.
     Вывод:
     None
     """
     logger.info(f"start converting with source_dir: {source_dir}")
     try:
         # Указываем имя папки, в которую будем складывать конвертированные изображения, и путь к ней
-        target_dir_name = "converted_images" # имя новой папки с конвертированными изображениями
-        target_dir = os.path.join(Path(source_dir).parent, target_dir_name)
+        target_dir = os.path.join(Path(source_dir).parent, target_dir)
 
         # Создаем целевую директорию, если она не существует
         Path(target_dir).mkdir(parents=True, exist_ok=True)
@@ -62,10 +61,3 @@ def convert_image_name(source_dir: str):
     except Exception as exc:
         logger.error(f"Ошибка при конвертировании изображений: {str(exc)}")
 
-
-# Пример использования:
-"""
-if __name__ == "__main__":
-source_dir = "./images/" # путь к исходному каталогу изображений
-convert_image_name_to_jpg(source_dir)
-"""
