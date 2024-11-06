@@ -1,12 +1,14 @@
-from project_logging import logger
+from project_logging import setup_logger
 import os
+
+logger = setup_logger("edit_image_name")
 
 
 def edit_image_name(datadir: str):
-    logger.info(f"edit_image_name: starts with dir: {datadir}")
+    logger.info(f"editing img name starts with dir: {datadir}")
     try:
         if not os.path.exists(datadir):
-            logger.warning(f"edit_image_name: {datadir} does not exist")
+            logger.warning(f"{datadir} does not exist")
             return None
 
         folder_counter = {}
@@ -31,6 +33,6 @@ def edit_image_name(datadir: str):
                         os.rename(file_path, new_file_path)
 
                         folder_counter[folder_path] += 1
-        logger.info(f"edit_image_name: operation successful ended")
+        logger.info(f"operation successful ended")
     except Exception as exc:
         logger.error(f"Ошибка при изменении имени изображений: {exc}")

@@ -1,7 +1,9 @@
-from project_logging import logger
+from project_logging import setup_logger
 import os
 from PIL import Image
 from pathlib import Path
+
+logger = setup_logger("convert_image_name")
 
 
 def convert_image_name(source_dir: str):
@@ -11,7 +13,7 @@ def convert_image_name(source_dir: str):
     Вывод:
     None
     """
-    logger.info(f"convert_image_name: start with source_dir: {source_dir}")
+    logger.info(f"start converting with source_dir: {source_dir}")
     try:
         # Указываем имя папки, в которую будем складывать конвертированные изображения, и путь к ней
         target_dir_name = "converted_images" # имя новой папки с конвертированными изображениями
@@ -19,7 +21,7 @@ def convert_image_name(source_dir: str):
 
         # Создаем целевую директорию, если она не существует
         Path(target_dir).mkdir(parents=True, exist_ok=True)
-        logger.info(f"convert_image_name: Целевая директория для сохранения: {target_dir}")
+        logger.info(f"Целевая директория для сохранения: {target_dir}")
 
         # Перебираем все папки в исходной директории
         for folder_name in os.listdir(source_dir):
@@ -48,17 +50,17 @@ def convert_image_name(source_dir: str):
                                 rgb_img = img.convert("RGB")
                                 rgb_img.save(new_file_path, "JPEG")
 
-                                logger.info(f"convert_image_name: файл '{filename}' обработан и сохранен как '{new_filename}'")
+                                logger.info(f"файл '{filename}' обработан и сохранен как '{new_filename}'")
                         except Exception as e:
-                            logger.error(f"convert_image_name: Ошибка при обработке файла '{filename}': {str(e)}")
+                            logger.error(f"Ошибка при обработке файла '{filename}': {str(e)}")
 
                     else:
-                        logger.warning(f"convert_image_name: Пропущен файл: {filename} (не изображение или не найден)")
+                        logger.warning(f"Пропущен файл: {filename} (не изображение или не найден)")
             else:
-                logger.warning(f"convert_image_name: Пропущена папка: {folder_name} (не является папкой)")
-        logger.info("convert_image_name: Обработка завершена")
+                logger.warning(f"Пропущена папка: {folder_name} (не является папкой)")
+        logger.info("Обработка завершена")
     except Exception as exc:
-        logger.error(f"convert_image_name: Ошибка при конвертировании изображений: {str(exc)}")
+        logger.error(f"Ошибка при конвертировании изображений: {str(exc)}")
 
 
 # Пример использования:

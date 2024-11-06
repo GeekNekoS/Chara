@@ -1,12 +1,14 @@
-from project_logging import logger
+from project_logging import setup_logger
 import tensorflow as tf
 from sklearn.metrics import confusion_matrix, accuracy_score, precision_score, recall_score, f1_score
 import matplotlib.pyplot as plt
 import numpy as np
 
+logger = setup_logger("evaluate_model")
+
 
 def evaluate_model(model: tf.keras.Model, test: tf.data.Dataset):
-    logger.info("evaluate_model: function starts")
+    logger.info("function starts")
     try:
         y_true = []
         y_pred = []
@@ -53,7 +55,7 @@ def evaluate_model(model: tf.keras.Model, test: tf.data.Dataset):
         ax2.legend()
 
         plt.show()
-        logger.info("evaluate_model: successful ended")
+        logger.info("successful ended")
     except Exception as exc:
-        logger.error(f"evaluating model: {exc}")
+        logger.error(f"{exc}")
 
