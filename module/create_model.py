@@ -23,8 +23,3 @@ def create_model(input_shape: tuple, num_classes: int) -> tf.keras.Model:
         return model
     except Exception as exc:
         logger.error("Error creating model: %s", str(exc))
-
-
-if __name__ == "__main__":
-    create_model((224, 224, 3), 10)
-
