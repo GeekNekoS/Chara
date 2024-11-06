@@ -34,9 +34,10 @@
     │   ├── test_convert_image_name.py
     │   ├── test_create_model.py
     │   ├── test_edit_image_name.py
-    │   ├── test_load_train_test_val.py
+    │   └── test_load_train_test_val.py
     ...
     │
+    ├── make_data.py                    # Create dataset 
     ├── DockerFile                      # Launch Project in Docker
     ├── README.md                       # Project documentation
     └── requirements.txt                # File with dependencies
