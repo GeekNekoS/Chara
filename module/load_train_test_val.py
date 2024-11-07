@@ -13,7 +13,7 @@ def load_train_test_val(directory: str,
                         seed: int = 42,
                         validation_split: float = 0.2,
                         data_format: str = 'channels_last',
-                        labels: str = 'inferred') -> tuple[tf.data.Dataset, tf.data.Dataset, tf.data.Dataset]:
+                        labels: str = 'inferred') -> tuple[tf.data.Dataset, tf.data.Dataset]:
     """
     Загружает изображения из указанной директории, автоматически разделяя их на обучающий,
     тестовый и валидационный наборы данных для последующей передачи в нейронные сети.
@@ -78,17 +78,17 @@ def load_train_test_val(directory: str,
                                                                           data_format=data_format,
                                                                           labels=labels,
                                                                           subset='both')
-    train_dataset, val_dataset = keras.utils.split_dataset(train_dataset,
-                                                            left_size=0.75,
-                                                            shuffle=shuffle,
-                                                            seed=seed)
+    # train_dataset, val_dataset = keras.utils.split_dataset(train_dataset,
+    #                                                         left_size=0.75,
+    #                                                         shuffle=shuffle,
+    #                                                         seed=seed)
     # Prefetching samples in GPU memory helps maximize GPU utilization.
     train_dataset = train_dataset.prefetch(tf_data.AUTOTUNE)
-    val_dataset = val_dataset.prefetch(tf_data.AUTOTUNE)
+    test_dataset = test_dataset.prefetch(tf_data.AUTOTUNE)
     # OneHotEncoding целевых меток
     train_dataset = train_dataset.map(lambda x, y: (x, tf.one_hot(y, depth=58)))
-    val_dataset = val_dataset.map(lambda x, y: (x, tf.one_hot(y, depth=58)))
+    # val_dataset = val_dataset.map(lambda x, y: (x, tf.one_hot(y, depth=58)))
     test_dataset = test_dataset.map(lambda x, y: (x, tf.one_hot(y, depth=58)))
 
     logger.info('Data loaded')
-    return train_dataset, val_dataset, test_dataset
+    return train_dataset, test_dataset

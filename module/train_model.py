@@ -12,7 +12,8 @@ logger = setup_logger("train_model")
 def train_model(directory: str,
                 batch_size: int,
                 image_size: tuple[int, int],
-                num_classes: int = 58):
+                num_classes: int = 58,
+                epochs: int = 10):
     """
       Обучает модель на основе изображений из заданной директории, выполняя загрузку данных,
       создание модели, её компиляцию и обучение. Завершает процесс оценкой модели на
@@ -63,25 +64,43 @@ def train_model(directory: str,
       """
     logger.info(f"training starts with directory: {directory}, batch_size: {batch_size}, image_size: {image_size}")
     try:
-        train_dataset, val_dataset, test_dataset = load_train_test_val(directory, batch_size, image_size)
+        train_dataset, test_dataset = load_train_test_val(directory, batch_size, image_size)
 
         model = create_model(input_shape=image_size + (3,), num_classes=num_classes)
         # Показать модель
         model.summary()
 
         model.compile(
-            optimizer=keras.optimizers.Adam(learning_rate=1e-3),
+            optimizer=keras.optimizers.Adam(learning_rate=1e-4),
             loss=keras.losses.CategoricalCrossentropy(),
             metrics=[
-                keras.metrics.CategoricalAccuracy(),
+                keras.metrics.CategoricalAccuracy(), keras.metrics.Accuracy()
             ],
         )
+        # Определите колбек для сохранения модели
+        checkpoint_callback = tf.keras.callbacks.ModelCheckpoint(
+            filepath='models/model.keras',  # Путь для сохранения модели
+            save_weights_only=False,  # Сохранять всю модель, а не только веса
+            save_best_only=True,  # Сохранять только лучшую модель (по метрике)
+            monitor='val_accuracy',  # Мониторить метрику (например, валидационную потерю)
+            mode='max',  # Сохранять, если метрика уменьшается
+            verbose=1  # Логирование процесса
+        )
+
+        # Определите колбек для ранней остановки
+        early_stopping_callback = tf.keras.callbacks.EarlyStopping(
+            monitor='val_loss',  # Мониторим валидационную потерю
+            patience=30,  # Количество эпох без улучшения перед остановкой
+            verbose=1,  # Логирование ранней остановки
+            restore_best_weights=True  # Восстановить лучшие веса после остановки
+        )
+        callbacks = [early_stopping_callback, checkpoint_callback]
         history = model.fit(x=train_dataset,
                   batch_size=64,
-                  callbacks=keras.callbacks.EarlyStopping(),
-                  validation_data=val_dataset,
-                  verbose=1,
-                  epochs=1
+                  callbacks=callbacks,
+                  validation_data=test_dataset,
+                  verbose=2,
+                  epochs=epochs
                   )
         evaluate_model(model, history, test_dataset)
         logger.info("training completed successfully")

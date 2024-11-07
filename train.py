@@ -10,8 +10,9 @@ logger = setup_logger("Learning model started")
 if __name__ == '__main__':
     directory = '/mnt/d/project_practicum/dataset'
     batch_size = 1
-    image_size = (20, 20)
+    image_size = (50, 50)
     num_classes = 58
+    epochs = 100
 
     train_model(
         directory=directory,
