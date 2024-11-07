@@ -12,7 +12,7 @@ logger = setup_logger("train_model")
 def train_model(directory: str,
                 batch_size: int,
                 image_size: tuple[int, int],
-                num_classes: int):
+                num_classes: int = 58):
     """
       Обучает модель на основе изображений из заданной директории, выполняя загрузку данных,
       создание модели, её компиляцию и обучение. Завершает процесс оценкой модели на
@@ -68,7 +68,6 @@ def train_model(directory: str,
         model = create_model(input_shape=image_size + (3,), num_classes=num_classes)
         # Показать модель
         model.summary()
-        tf.keras.utils.plot_model(model, to_file='model.png', show_shapes=True)
 
         model.compile(
             optimizer=keras.optimizers.Adam(learning_rate=1e-3),
@@ -78,11 +77,11 @@ def train_model(directory: str,
             ],
         )
         history = model.fit(x=train_dataset,
-                  batch_size=batch_size,
+                  batch_size=64,
                   callbacks=keras.callbacks.EarlyStopping(),
                   validation_data=val_dataset,
                   verbose=1,
-                  epochs=10
+                  epochs=1
                   )
         evaluate_model(model, history, test_dataset)
         logger.info("training completed successfully")

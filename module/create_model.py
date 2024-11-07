@@ -64,7 +64,7 @@ def create_model(input_shape: tuple, num_classes: int = 58) -> tf.keras.Model:
     x = layers.Dense(512, activation="relu")(x)
     x = layers.Dropout(0.2)(x)
     x = layers.Dense(256, activation="relu")(x)
-    outputs = layers.Dense(num_classes)(x)
+    outputs = layers.Dense(num_classes, activation='softmax')(x)
 
     model = keras.Model(inputs=inputs, outputs=outputs, name="model")
     logger.info("model created successfully")

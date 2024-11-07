@@ -85,5 +85,10 @@ def load_train_test_val(directory: str,
     # Prefetching samples in GPU memory helps maximize GPU utilization.
     train_dataset = train_dataset.prefetch(tf_data.AUTOTUNE)
     val_dataset = val_dataset.prefetch(tf_data.AUTOTUNE)
+    # OneHotEncoding целевых меток
+    train_dataset = train_dataset.map(lambda x, y: (x, tf.one_hot(y, depth=58)))
+    val_dataset = val_dataset.map(lambda x, y: (x, tf.one_hot(y, depth=58)))
+    test_dataset = test_dataset.map(lambda x, y: (x, tf.one_hot(y, depth=58)))
+
     logger.info('Data loaded')
     return train_dataset, val_dataset, test_dataset
