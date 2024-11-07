@@ -4,6 +4,8 @@
 from module.project_logging import setup_logger
 from module.load_train_test_val import load_train_test_val
 from module.create_model import create_model
+from module.train_model import train_model
+
 
 logger = setup_logger("Learning model started")
 
@@ -19,4 +21,7 @@ if __name__ == '__main__':
         image_size=image_size,
         shuffle=shuffle,
     )
-    model = create_model()
+    model = create_model(
+        input_shape=image_size,
+        num_classes=58
+    )
