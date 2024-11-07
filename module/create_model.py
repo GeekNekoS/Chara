@@ -6,7 +6,7 @@ from tensorflow.keras import layers
 logger = setup_logger("create_model")
 
 
-def create_model(input_shape: tuple, num_classes: int) -> tf.keras.Model:
+def create_model(input_shape: tuple, num_classes: int = 58) -> tf.keras.Model:
     """
       Создаёт и возвращает нейронную сеть на основе модели TensorFlow Keras для классификации изображений.
 
@@ -49,32 +49,33 @@ def create_model(input_shape: tuple, num_classes: int) -> tf.keras.Model:
       ------------
       - Логирует начало и завершение создания модели, включая параметры `input_shape` и `num_classes`.
       - При возникновении ошибки в процессе создания модели логирует подробное сообщение об ошибке.
-
-      Пример использования:
-      ----------------------
-      >>> model = create_model(input_shape=(128, 128, 3), num_classes=10)
-      >>> model.compile(optimizer="adam", loss="sparse_categorical_crossentropy", metrics=["accuracy"])
-      >>> model.summary()
-
-      В примере создается модель для классификации изображений размером 128x128 с 3 цветовыми каналами на 10 классов.
-      После создания модель компилируется и отображается её структура.
-
       """
     logger.info(f"start of creating model, shape: {input_shape}, num_classes: {num_classes}")
-    try:
-        inputs = keras.Input(shape=input_shape)
-        x = layers.Conv2D(64, 3, 1, activation='relu', padding='same')(inputs)
-        x = layers.BatchNormalization()(x)
-        x = layers.MaxPooling2D(2)(x)
-        x = layers.Conv2D(128, 3, 1, activation='relu', padding='same')(x)
-        x = layers.MaxPooling2D(2)(x)
-        x = layers.Flatten()(x)
-        x = layers.Dense(64, activation="relu")(x)
-        x = layers.Dense(32, activation="relu")(x)
-        outputs = layers.Dense(num_classes)(x)
 
-        model = keras.Model(inputs=inputs, outputs=outputs, name="model")
-        logger.info("model created successfully")
-        return model
-    except Exception as exc:
-        logger.error("Error creating model: %s", str(exc))
+    inputs = keras.Input(shape=input_shape)
+    x = data_augmentation(inputs)
+    x = layers.Rescaling(1. / 255)(x)
+    x = layers.Conv2D(64, 3, 1, activation='relu', padding='same')(inputs)
+    x = layers.BatchNormalization()(x)
+    x = layers.MaxPooling2D(2)(x)
+    x = layers.Conv2D(128, 3, 1, activation='relu', padding='same')(x)
+    x = layers.MaxPooling2D(2)(x)
+    x = layers.Flatten()(x)
+    x = layers.Dense(512, activation="relu")(x)
+    x = layers.Dropout(0.2)(x)
+    x = layers.Dense(256, activation="relu")(x)
+    outputs = layers.Dense(num_classes)(x)
+
+    model = keras.Model(inputs=inputs, outputs=outputs, name="model")
+    logger.info("model created successfully")
+    return model
+
+
+def data_augmentation(images):
+    data_augmentation_layers = [
+        layers.RandomFlip("horizontal"),
+        layers.RandomRotation(0.1),
+    ]
+    for layer in data_augmentation_layers:
+        images = layer(images)
+    return images

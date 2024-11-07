@@ -1,6 +1,7 @@
 import tensorflow as tf
 import keras
 from module.project_logging import setup_logger
+from tensorflow import data as tf_data
 
 logger = setup_logger("load_train_test_val")
 
@@ -66,19 +67,9 @@ def load_train_test_val(directory: str,
     - Затем обучающий набор данных дополнительно делится на обучающий и тестовый наборы в соотношении 75% на 25%
       с использованием `split_dataset`, чтобы выделить часть данных для тестирования.
     - В конце функция возвращает три разделённых набора данных для дальнейшего использования.
-
-    Пример использования:
-    ----------------------
-    >>> train_ds, test_ds, val_ds = load_train_test_val(directory='path/to/data',
-                                                        batch_size=32,
-                                                        image_size=(128, 128),
-                                                        shuffle=True,
-                                                        seed=123,
-                                                        validation_split=0.2)
-
     """
     logger.info('Loading data')
-    train_dataset, val_dataset = keras.utils.image_dataset_from_directory(directory,
+    train_dataset, test_dataset = keras.utils.image_dataset_from_directory(directory,
                                                                           batch_size=batch_size,
                                                                           image_size=image_size,
                                                                           shuffle=shuffle,
@@ -87,9 +78,12 @@ def load_train_test_val(directory: str,
                                                                           data_format=data_format,
                                                                           labels=labels,
                                                                           subset='both')
-    train_dataset, test_dataset = keras.utils.split_dataset(train_dataset,
+    train_dataset, val_dataset = keras.utils.split_dataset(train_dataset,
                                                             left_size=0.75,
                                                             shuffle=shuffle,
                                                             seed=seed)
+    # Prefetching samples in GPU memory helps maximize GPU utilization.
+    train_dataset = train_dataset.prefetch(tf_data.AUTOTUNE)
+    val_dataset = val_dataset.prefetch(tf_data.AUTOTUNE)
     logger.info('Data loaded')
-    return train_dataset, test_dataset, val_dataset
+    return train_dataset, val_dataset, test_dataset

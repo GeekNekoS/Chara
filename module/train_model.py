@@ -2,9 +2,9 @@ from module.project_logging import setup_logger
 from module.load_train_test_val import load_train_test_val
 from module.create_model import create_model
 from module.evaluate_model import evaluate_model
-import numpy as np
+import tensorflow as tf
 import keras
-import os
+import matplotlib.pyplot as plt
 
 logger = setup_logger("train_model")
 
@@ -63,23 +63,28 @@ def train_model(directory: str,
       """
     logger.info(f"training starts with directory: {directory}, batch_size: {batch_size}, image_size: {image_size}")
     try:
-        train_dataset, test_dataset, val_dataset = load_train_test_val(directory, batch_size, image_size)
+        train_dataset, val_dataset, test_dataset = load_train_test_val(directory, batch_size, image_size)
+
         model = create_model(input_shape=image_size + (3,), num_classes=num_classes)
+        # Показать модель
+        model.summary()
+        tf.keras.utils.plot_model(model, to_file='model.png', show_shapes=True)
+
         model.compile(
             optimizer=keras.optimizers.Adam(learning_rate=1e-3),
             loss=keras.losses.CategoricalCrossentropy(),
             metrics=[
-                keras.metrics.TopKCategoricalAccuracy(),
+                keras.metrics.CategoricalAccuracy(),
             ],
         )
-        model.fit(x=train_dataset,
-                  y=test_dataset,
+        history = model.fit(x=train_dataset,
                   batch_size=batch_size,
                   callbacks=keras.callbacks.EarlyStopping(),
+                  validation_data=val_dataset,
                   verbose=1,
                   epochs=10
                   )
-        evaluate_model(model, val_dataset)
+        evaluate_model(model, history, test_dataset)
         logger.info("training completed successfully")
     except Exception as exc:
         logger.error(f"An error occurred during training: {exc}")
