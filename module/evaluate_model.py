@@ -1,4 +1,4 @@
-from project_logging import setup_logger
+from module.project_logging import setup_logger
 import tensorflow as tf
 from sklearn.metrics import confusion_matrix, accuracy_score, precision_score, recall_score, f1_score
 import matplotlib.pyplot as plt

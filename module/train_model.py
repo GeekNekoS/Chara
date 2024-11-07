@@ -1,7 +1,7 @@
-from project_logging import setup_logger
-from load_train_test_val import load_train_test_val
-from create_model import create_model
-from evaluate_model import evaluate_model
+from module.project_logging import setup_logger
+from module.load_train_test_val import load_train_test_val
+from module.create_model import create_model
+from module.evaluate_model import evaluate_model
 import numpy as np
 import keras
 import os
@@ -11,7 +11,8 @@ logger = setup_logger("train_model")
 
 def train_model(directory: str,
                 batch_size: int,
-                image_size: tuple[int, int]):
+                image_size: tuple[int, int],
+                num_classes: int):
     """
       Обучает модель на основе изображений из заданной директории, выполняя загрузку данных,
       создание модели, её компиляцию и обучение. Завершает процесс оценкой модели на
@@ -31,6 +32,8 @@ def train_model(directory: str,
       image_size : tuple[int, int]
           Размер загружаемых изображений в формате (высота, ширина). Все изображения масштабируются
           до этого размера, обеспечивая согласованность данных.
+      num_classes : int
+          Количество классов для распознавания
 
       Возвращаемое значение:
       ----------------------
@@ -61,12 +64,21 @@ def train_model(directory: str,
     logger.info(f"training starts with directory: {directory}, batch_size: {batch_size}, image_size: {image_size}")
     try:
         train_dataset, test_dataset, val_dataset = load_train_test_val(directory, batch_size, image_size)
-        model = create_model(np.shape(list(train_dataset.take(1))[0][0]), sum([1 for _ in os.listdir(directory)]))
-        model.compile()
-        model.fit(train_dataset,
-                  test_dataset,
-                  batch_size,
-                  callbacks=keras.callbacks.EarlyStopping())
+        model = create_model(input_shape=image_size + (3,), num_classes=num_classes)
+        model.compile(
+            optimizer=keras.optimizers.Adam(learning_rate=1e-3),
+            loss=keras.losses.CategoricalCrossentropy(),
+            metrics=[
+                keras.metrics.TopKCategoricalAccuracy(),
+            ],
+        )
+        model.fit(x=train_dataset,
+                  y=test_dataset,
+                  batch_size=batch_size,
+                  callbacks=keras.callbacks.EarlyStopping(),
+                  verbose=1,
+                  epochs=10
+                  )
         evaluate_model(model, val_dataset)
         logger.info("training completed successfully")
     except Exception as exc:

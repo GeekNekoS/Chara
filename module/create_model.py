@@ -1,4 +1,4 @@
-from project_logging import setup_logger
+from module.project_logging import setup_logger
 import tensorflow as tf
 import tensorflow.keras as keras
 from tensorflow.keras import layers
