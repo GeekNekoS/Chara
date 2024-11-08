@@ -4,7 +4,7 @@ from module.create_model import create_model
 from module.evaluate_model import evaluate_model
 import tensorflow as tf
 import keras
-import matplotlib.pyplot as plt
+
 
 logger = setup_logger("train_model")
 
@@ -69,13 +69,15 @@ def train_model(directory: str,
         model = create_model(input_shape=image_size + (3,), num_classes=num_classes)
         # Показать модель
         model.summary()
-
+        metrics = [
+            keras.metrics.Accuracy(),
+            keras.metrics.Precision(),
+            keras.metrics.Recall(),
+        ]
         model.compile(
-            optimizer=keras.optimizers.Adam(learning_rate=1e-4),
+            optimizer=keras.optimizers.Adam(learning_rate=1e-5),
             loss=keras.losses.CategoricalCrossentropy(),
-            metrics=[
-                keras.metrics.CategoricalAccuracy(), keras.metrics.Accuracy()
-            ],
+            metrics=metrics
         )
         # Определите колбек для сохранения модели
         checkpoint_callback = tf.keras.callbacks.ModelCheckpoint(
@@ -89,14 +91,14 @@ def train_model(directory: str,
 
         # Определите колбек для ранней остановки
         early_stopping_callback = tf.keras.callbacks.EarlyStopping(
-            monitor='val_loss',  # Мониторим валидационную потерю
+            monitor='val_accuracy',  # Мониторим валидационную потерю
             patience=30,  # Количество эпох без улучшения перед остановкой
             verbose=1,  # Логирование ранней остановки
             restore_best_weights=True  # Восстановить лучшие веса после остановки
         )
         callbacks = [early_stopping_callback, checkpoint_callback]
         history = model.fit(x=train_dataset,
-                  batch_size=64,
+                  batch_size=128,
                   callbacks=callbacks,
                   validation_data=test_dataset,
                   verbose=2,

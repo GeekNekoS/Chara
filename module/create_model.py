@@ -1,7 +1,10 @@
+import os
+os.environ["KERAS_BACKEND"] = "tensorflow"
 from module.project_logging import setup_logger
 import tensorflow as tf
 import tensorflow.keras as keras
 from tensorflow.keras import layers
+import keras_cv
 
 logger = setup_logger("create_model")
 
@@ -55,18 +58,38 @@ def create_model(input_shape: tuple, num_classes: int = 58) -> tf.keras.Model:
     inputs = keras.Input(shape=input_shape)
     x = data_augmentation(inputs)
     x = layers.Rescaling(1. / 255)(x)
-    x = layers.Conv2D(64, 3, 1, activation='relu', padding='same')(inputs)
+    x = layers.Conv2D(64, (3, 3), activation='relu', padding='same')(inputs)
     x = layers.BatchNormalization()(x)
     x = layers.MaxPooling2D(2)(x)
-    x = layers.Conv2D(128, 3, 1, activation='relu', padding='same')(x)
+    x = layers.Conv2D(128, (3, 3), activation='relu', padding='same')(x)
+    x = layers.BatchNormalization()(x)
     x = layers.MaxPooling2D(2)(x)
+    x = layers.Conv2D(256, (3, 3), activation='relu', padding='same')(x)
+    x = layers.BatchNormalization()(x)
+    x = layers.MaxPooling2D(2)(x)
+    # x = layers.Conv2D(256, (3, 3), activation='relu', padding='same')(x)
+    # x = layers.BatchNormalization()(x)
+    # x = layers.MaxPooling2D(2)(x)
     x = layers.Flatten()(x)
+    x = layers.Dense(1024, activation="relu")(x)
+    x = layers.Dropout(0.3)(x)
     x = layers.Dense(512, activation="relu")(x)
-    x = layers.Dropout(0.2)(x)
+    x = layers.Dropout(0.3)(x)
     x = layers.Dense(256, activation="relu")(x)
     outputs = layers.Dense(num_classes, activation='softmax')(x)
 
     model = keras.Model(inputs=inputs, outputs=outputs, name="model")
+
+    # # Create a model using a pretrained backbone
+    # backbone = keras_cv.models.EfficientNetV2Backbone.from_preset(
+    #     "efficientnetv2_b0_imagenet"
+    # )
+    # model = keras_cv.models.ImageClassifier(
+    #     backbone=backbone,
+    #     num_classes=num_classes,
+    #     activation="softmax",
+    # )
+
     logger.info("model created successfully")
     return model
 
