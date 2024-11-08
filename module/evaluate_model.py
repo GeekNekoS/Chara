@@ -7,7 +7,7 @@ import numpy as np
 logger = setup_logger("evaluate_model")
 
 
-def evaluate_model(model: tf.keras.Model, history, test: tf.data.Dataset):
+def evaluate_model(model: tf.keras.Model, test: tf.data.Dataset):
     logger.info("function starts")
     # Прогноз на основе тестовых данных
     y_pred = model.predict(test, batch_size=64)

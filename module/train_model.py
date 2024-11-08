@@ -13,7 +13,9 @@ def train_model(directory: str,
                 batch_size: int,
                 image_size: tuple[int, int],
                 num_classes: int = 58,
-                epochs: int = 10):
+                epochs: int = 10,
+                learning_rate: float = 1e-3
+                ):
     """
       Обучает модель на основе изображений из заданной директории, выполняя загрузку данных,
       создание модели, её компиляцию и обучение. Завершает процесс оценкой модели на
@@ -71,11 +73,9 @@ def train_model(directory: str,
         model.summary()
         metrics = [
             keras.metrics.Accuracy(),
-            keras.metrics.Precision(),
-            keras.metrics.Recall(),
         ]
         model.compile(
-            optimizer=keras.optimizers.Adam(learning_rate=1e-5),
+            optimizer=keras.optimizers.Adam(learning_rate=learning_rate),
             loss=keras.losses.CategoricalCrossentropy(),
             metrics=metrics
         )
@@ -92,18 +92,19 @@ def train_model(directory: str,
         # Определите колбек для ранней остановки
         early_stopping_callback = tf.keras.callbacks.EarlyStopping(
             monitor='val_accuracy',  # Мониторим валидационную потерю
-            patience=30,  # Количество эпох без улучшения перед остановкой
+            patience=50,  # Количество эпох без улучшения перед остановкой
             verbose=1,  # Логирование ранней остановки
             restore_best_weights=True  # Восстановить лучшие веса после остановки
         )
         callbacks = [early_stopping_callback, checkpoint_callback]
         history = model.fit(x=train_dataset,
-                  batch_size=128,
+                  # batch_size=128,
                   callbacks=callbacks,
                   validation_data=test_dataset,
-                  verbose=2,
+                  verbose=1,
                   epochs=epochs
                   )
+        model = tf.keras.models.load_model('models/model_0.6018.keras')
         evaluate_model(model, history, test_dataset)
         logger.info("training completed successfully")
     except Exception as exc:
