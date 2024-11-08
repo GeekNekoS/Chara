@@ -77,6 +77,7 @@ def load_train_test_val(directory: str,
                                                                           validation_split=validation_split,
                                                                           data_format=data_format,
                                                                           labels=labels,
+                                                                          class_names=["0", "1"],  # список классов, которые необходимо загрузить
                                                                           subset='both')
     # train_dataset, val_dataset = keras.utils.split_dataset(train_dataset,
     #                                                         left_size=0.75,
