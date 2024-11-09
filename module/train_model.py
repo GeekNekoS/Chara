@@ -118,7 +118,7 @@ def train_model(directory: str,
                   verbose=1,
                   epochs=epochs
                   )
-        model = tf.keras.models.load_model('models/model_0.6018.keras')
+        model = tf.keras.models.load_model('models/model')
         evaluate_model(model, history, test_dataset)
         logger.info("training completed successfully")
     except Exception as exc:
@@ -165,7 +165,7 @@ class SavedModelCallback(Callback):
         if (self.mode == 'min' and current < self.best) or (self.mode == 'max' and current > self.best):
             self.best = current
             if self.verbose > 0:
-                print(f"Epoch {epoch+1}: {self.monitor} improved to {current:.4f}, saving model to {self.save_dir}/model_epoch_{epoch+1}")
+                print(f"\n Epoch {epoch+1}: {self.monitor} improved to {current:.4f}, saving model to {self.save_dir}/model_epoch_{epoch+1}")
 
             # Создаем путь для сохранения модели
             model_save_path = os.path.join(self.save_dir, f"model_epoch_{epoch+1}")

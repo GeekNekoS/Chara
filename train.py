@@ -11,22 +11,22 @@ from module.load_train_test_val import load_train_test_val
 logger = setup_logger("Learning model started")
 
 if __name__ == '__main__':
-    directory = '/mnt/d/project_practicum/dataset'
-    # directory = '/mnt/d/project_practicum/mnist_images'
+    # directory = '/mnt/d/project_practicum/dataset'
+    directory = '/mnt/d/project_practicum/mnist_images'
     batch_size = 128
-    image_size = (128, 128)
-    num_classes = 58
+    image_size = (28, 28)
+    num_classes = 10
     epochs = 1000
     learning_rate = 1e-04
 
-    train_model(
-        directory=directory,
-        batch_size=batch_size,
-        image_size=image_size,
-        num_classes = num_classes,
-        epochs=epochs,
-        learning_rate=learning_rate
-    )
+    # train_model(
+    #     directory=directory,
+    #     batch_size=batch_size,
+    #     image_size=image_size,
+    #     num_classes = num_classes,
+    #     epochs=epochs,
+    #     learning_rate=learning_rate
+    # )
     # train_dataset, test_dataset = load_train_test_val(directory, batch_size, image_size)
     # model = tf.saved_model.load('models/model')
     # evaluate_model(model, test_dataset)

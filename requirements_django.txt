@@ -1,0 +1,4 @@
+Django==4.2.6
+djangorestframework==3.14.0
+psycopg2==2.9.6  # если используете PostgreSQL
+gunicorn==23.0.0  # для продакшн-сервера
