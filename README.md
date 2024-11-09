@@ -17,6 +17,8 @@
  - Install dependencies:  `pip install -r requirements.txt`
 <br /> <br />
 
+## Docker launch
+`docker-compose up --build`
 
 <a name="project_structure"></a> 
 # Project structure

@@ -13,3 +13,22 @@ services:
       --allow_version_labels_for_unavailable_models=true
       --rest_api_port=8501
     restart: always
+
+  django:
+    build:
+      context: .
+      dockerfile: Dockerfile.django
+    container_name: django_app
+    ports:
+      - "8000:8000"
+    environment:
+      # Задайте здесь переменные окружения, если нужно
+      - DJANGO_ALLOWED_HOSTS=*
+    depends_on:
+      - tf_serving
+    networks:
+      - app_network
+
+networks:
+  app_network:
+    driver: bridge

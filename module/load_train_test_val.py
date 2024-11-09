@@ -1,5 +1,6 @@
 import tensorflow as tf
 import keras
+from tensorflow.keras.preprocessing.image import ImageDataGenerator
 from module.project_logging import setup_logger
 from tensorflow import data as tf_data
 
@@ -69,26 +70,103 @@ def load_train_test_val(directory: str,
     - В конце функция возвращает три разделённых набора данных для дальнейшего использования.
     """
     logger.info('Loading data')
-    train_dataset, test_dataset = keras.utils.image_dataset_from_directory(directory,
-                                                                          batch_size=batch_size,
-                                                                          image_size=image_size,
-                                                                          shuffle=shuffle,
-                                                                          seed=seed,
-                                                                          validation_split=validation_split,
-                                                                          data_format=data_format,
-                                                                          labels=labels,
-                                                                          subset='both')
-    # train_dataset, val_dataset = keras.utils.split_dataset(train_dataset,
-    #                                                         left_size=0.75,
-    #                                                         shuffle=shuffle,
-    #                                                         seed=seed)
-    # Prefetching samples in GPU memory helps maximize GPU utilization.
-    train_dataset = train_dataset.prefetch(tf_data.AUTOTUNE)
-    test_dataset = test_dataset.prefetch(tf_data.AUTOTUNE)
-    # OneHotEncoding целевых меток
-    train_dataset = train_dataset.map(lambda x, y: (x, tf.one_hot(y, depth=58)))
-    # val_dataset = val_dataset.map(lambda x, y: (x, tf.one_hot(y, depth=58)))
-    test_dataset = test_dataset.map(lambda x, y: (x, tf.one_hot(y, depth=58)))
+    # train_dataset, test_dataset = keras.utils.image_dataset_from_directory(directory,
+    #                                                                       batch_size=batch_size,
+    #                                                                       image_size=image_size,
+    #                                                                       shuffle=shuffle,
+    #                                                                       seed=seed,
+    #                                                                       validation_split=validation_split,
+    #                                                                       data_format=data_format,
+    #                                                                       labels=labels,
+    #                                                                       # class_names=["0", "1"],  # список классов, которые необходимо загрузить
+    #                                                                       subset='both')
+    #
+    #
+    # # Prefetching samples in GPU memory helps maximize GPU utilization.
+    # # train_dataset = train_dataset.prefetch(tf_data.AUTOTUNE)
+    # # test_dataset = test_dataset.prefetch(tf_data.AUTOTUNE)
+    # # # OneHotEncoding целевых меток
+    # # train_dataset = train_dataset.unbatch()
+    # train_dataset = train_dataset.map(lambda x, y: (x, tf.one_hot(y, depth=10)))
+    # # train_dataset = train_dataset.batch(batch_size)
+    # # # val_dataset = val_dataset.map(lambda x, y: (x, tf.one_hot(y, depth=58)))
+    # # test_dataset = test_dataset.unbatch()
+    # test_dataset = test_dataset.map(lambda x, y: (x, tf.one_hot(y, depth=10)))
+    # # test_dataset = test_dataset.batch(batch_size)
+    data_loader = CustomImageDataLoader(data_dir=directory, img_size=image_size, batch_size=batch_size, test_split=validation_split)
+    train_dataset = data_loader.get_train_data()
+    test_dataset = data_loader.get_test_data()
+    class_names = data_loader.get_class_names()
+    print("Class names:", class_names)
 
     logger.info('Data loaded')
     return train_dataset, test_dataset
+
+
+import os
+import numpy as np
+from sklearn.model_selection import train_test_split
+from tensorflow.keras.preprocessing.image import img_to_array, load_img
+from concurrent.futures import ThreadPoolExecutor, as_completed
+from tensorflow.keras.utils import to_categorical
+
+
+class CustomImageDataLoader:
+    def __init__(self, data_dir, img_size=(128, 128), batch_size=32, test_split=0.2, num_workers=16):
+        self.data_dir = data_dir
+        self.img_size = img_size
+        self.batch_size = batch_size
+        self.test_split = test_split
+        self.num_workers = num_workers  # Количество потоков для загрузки
+        self.class_names = sorted([d for d in os.listdir(data_dir) if os.path.isdir(os.path.join(data_dir, d))])
+        self.num_classes = len(self.class_names)
+        self._prepare_data()
+
+    def _load_single_image(self, file_path, label):
+        # Загружаем и обрабатываем одно изображение
+        image = load_img(file_path, target_size=self.img_size)
+        image = img_to_array(image) / 255.0  # Нормализация
+        return image, label
+
+    def _load_images_and_labels(self):
+        images, labels = [], []
+        # Собираем все пути изображений и их метки
+        image_paths_labels = [
+            (os.path.join(self.data_dir, class_name, file_name), label)
+            for label, class_name in enumerate(self.class_names)
+            for file_name in os.listdir(os.path.join(self.data_dir, class_name))
+            if os.path.isfile(os.path.join(self.data_dir, class_name, file_name))
+        ]
+
+        # Используем ThreadPoolExecutor для параллельной загрузки изображений
+        with ThreadPoolExecutor(max_workers=self.num_workers) as executor:
+            futures = [executor.submit(self._load_single_image, path, label) for path, label in image_paths_labels]
+            for future in as_completed(futures):
+                image, label = future.result()
+                images.append(image)
+                labels.append(label)
+
+        return np.array(images), np.array(labels)
+
+    def _prepare_data(self):
+        images, labels = self._load_images_and_labels()
+
+        # Применяем one-hot encoding к меткам
+        labels = to_categorical(labels, num_classes=self.num_classes)
+
+        # Разделяем данные на обучающую и тестовую выборки
+        x_train, x_test, y_train, y_test = train_test_split(images, labels, test_size=self.test_split, stratify=labels)
+
+        # Преобразуем в tf.data.Dataset
+        self.train_dataset = tf.data.Dataset.from_tensor_slices((x_train, y_train)).shuffle(1000).batch(self.batch_size)
+        self.test_dataset = tf.data.Dataset.from_tensor_slices((x_test, y_test)).batch(self.batch_size)
+
+    def get_train_data(self):
+        return self.train_dataset
+
+    def get_test_data(self):
+        return self.test_dataset
+
+    def get_class_names(self):
+        return self.class_names
+
