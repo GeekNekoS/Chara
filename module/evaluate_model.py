@@ -3,14 +3,35 @@ import tensorflow as tf
 from sklearn.metrics import confusion_matrix, accuracy_score, precision_score, recall_score, f1_score
 import matplotlib.pyplot as plt
 import numpy as np
+import seaborn as sns
+
 
 logger = setup_logger("evaluate_model")
 
 
-def evaluate_model(model: tf.keras.Model, test: tf.data.Dataset):
+def evaluate_model(model, test: tf.data.Dataset):
     logger.info("function starts")
     # Прогноз на основе тестовых данных
-    y_pred = model.predict(test, batch_size=64)
+    # Используем сигнатуру модели
+    infer = model.signatures["serving_default"]
+
+    # Список для хранения всех предсказаний
+    all_predictions = []
+
+    # Предполагаем, что 'test' - это батчированный датасет
+    for features, labels in test:
+        # Преобразуем фичи в тензор, если это необходимо
+        input_tensor = tf.convert_to_tensor(features, dtype=tf.float32)
+
+        # Получаем предсказания от модели
+        y_pred = infer(input_tensor=input_tensor)
+
+        # Преобразуем предсказания в numpy массив и добавляем в список
+        all_predictions.append(y_pred.numpy())
+
+    # После того как обработаны все батчи, объединяем предсказания в один numpy массив
+    y_pred = np.concatenate(all_predictions, axis=0)
+
 
     y_true = []
     # Проход по всему датасету test
@@ -23,8 +44,10 @@ def evaluate_model(model: tf.keras.Model, test: tf.data.Dataset):
 
     y_true = np.array(y_true)
     y_pred = np.array(y_pred)
-
+    class_names = [i for i in range(10)]
     cm = confusion_matrix(y_true, y_pred)
+    plot_confusion_matrix(y_true, y_pred, class_names)
+
     accuracy = accuracy_score(y_true, y_pred)
     precision = precision_score(y_true, y_pred, average='weighted')
     recall = recall_score(y_true, y_pred, average='weighted')
@@ -59,5 +82,26 @@ def evaluate_model(model: tf.keras.Model, test: tf.data.Dataset):
     #
     # plt.show()
     logger.info("successful ended")
+
+def plot_confusion_matrix(y_true, y_pred, class_names):
+    """
+    Отображает матрицу ошибок в виде таблицы.
+
+    :param y_true: истинные метки классов
+    :param y_pred: предсказанные метки классов
+    :param class_names: список с названиями классов
+    """
+    # Создаём матрицу ошибок
+    cm = confusion_matrix(y_true, y_pred)
+
+    # Визуализируем матрицу ошибок с помощью heatmap из seaborn
+    plt.figure(figsize=(10, 8))
+    sns.heatmap(cm, annot=True, fmt='d', cmap='Blues', xticklabels=class_names, yticklabels=class_names)
+
+    # Оформляем график
+    plt.xlabel('Predicted Labels')
+    plt.ylabel('True Labels')
+    plt.title('Confusion Matrix')
+    plt.show()
 
 
