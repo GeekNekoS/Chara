@@ -20,6 +20,9 @@
 ## Docker launch
 `docker-compose up --build`
 
+## Model API
+`http://localhost:8501/v1/models/model/versions/1`
+
 <a name="project_structure"></a> 
 # Project structure
     Chara
