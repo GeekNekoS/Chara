@@ -171,7 +171,7 @@ class SavedModelCallback(Callback):
             model_save_path = os.path.join(self.save_dir, f"model_epoch_{epoch+1}")
             # Сохраняем модель в формате SavedModel
             tf.saved_model.save(self.model, model_save_path)
-            print(f"Model saved to: {model_save_path}")
+            print(f"\n Model saved to: {model_save_path}")
 
         elif self.verbose > 0:
             print(f"\n Epoch {epoch+1}: {self.monitor} did not improve from {self.best:.4f}")

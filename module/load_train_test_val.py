@@ -109,6 +109,7 @@ from sklearn.model_selection import train_test_split
 from tensorflow.keras.preprocessing.image import img_to_array, load_img
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from tensorflow.keras.utils import to_categorical
+from concurrent.futures import ProcessPoolExecutor, as_completed
 
 
 class CustomImageDataLoader:
@@ -128,24 +129,45 @@ class CustomImageDataLoader:
         image = img_to_array(image) / 255.0  # Нормализация
         return image, label
 
+    def _load_images_from_folder(self, folder_path, label):
+        images, labels = [], []
+        # Загрузка всех изображений из текущей папки
+        for file_name in os.listdir(folder_path):
+            file_path = os.path.join(folder_path, file_name)
+            if os.path.isfile(file_path):
+                image, lbl = self._load_single_image(file_path, label)
+                images.append(image)
+                labels.append(lbl)
+        return images, labels
+
     def _load_images_and_labels(self):
         images, labels = [], []
-        # Собираем все пути изображений и их метки
-        image_paths_labels = [
-            (os.path.join(self.data_dir, class_name, file_name), label)
+
+        # Список путей к папкам классов
+        folder_paths_labels = [
+            (os.path.join(self.data_dir, class_name), label)
             for label, class_name in enumerate(self.class_names)
-            for file_name in os.listdir(os.path.join(self.data_dir, class_name))
-            if os.path.isfile(os.path.join(self.data_dir, class_name, file_name))
         ]
 
-        # Используем ThreadPoolExecutor для параллельной загрузки изображений
-        with ThreadPoolExecutor(max_workers=self.num_workers) as executor:
-            futures = [executor.submit(self._load_single_image, path, label) for path, label in image_paths_labels]
-            for future in as_completed(futures):
-                image, label = future.result()
-                images.append(image)
-                labels.append(label)
+        # Используем ProcessPoolExecutor для параллельной загрузки изображений из папок
+        with ProcessPoolExecutor(max_workers=self.num_workers) as executor:
+            futures = [
+                executor.submit(self._load_images_from_folder, folder_path, label)
+                for folder_path, label in folder_paths_labels
+            ]
 
+            # Собираем результаты и выводим прогресс по папкам
+            processed_folders = 0
+            total_folders = len(folder_paths_labels)
+
+            for future in as_completed(futures):
+                folder_images, folder_labels = future.result()
+                images.extend(folder_images)
+                labels.extend(folder_labels)
+
+                # Обновляем прогресс после обработки каждой папки
+                processed_folders += 1
+                print(f"Папок обработано: {processed_folders}/{total_folders}")
         return np.array(images), np.array(labels)
 
     def _prepare_data(self):

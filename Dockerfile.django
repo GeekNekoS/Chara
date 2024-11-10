@@ -1,7 +1,7 @@
 # Используем официальный образ Python
 FROM python:latest
 
-ENV PYTHONUNBUFFERED 1
+ENV PYTHONUNBUFFERED=1
 
 # Устанавливаем рабочую директорию
 WORKDIR /app
@@ -10,6 +10,8 @@ WORKDIR /app
 COPY . /app/
 
 # Устанавливаем зависимости
+COPY requirements_django.txt /app/requirements_django.txt
+RUN pip install --upgrade pip
 RUN pip install --no-cache-dir -r requirements_django.txt
 
 # Открываем порт для работы приложения

@@ -1,4 +1,8 @@
-Django==4.2.6
+Django==5.1.3
 djangorestframework==3.14.0
+pillow==11.0.0
 psycopg2==2.9.6  # если используете PostgreSQL
+requests==2.32.3
+numpy==2.1.3
 gunicorn==23.0.0  # для продакшн-сервера
+

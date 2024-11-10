@@ -9,38 +9,8 @@ import seaborn as sns
 logger = setup_logger("evaluate_model")
 
 
-def evaluate_model(model, test: tf.data.Dataset):
+def evaluate_model(y_pred: np.array, y_true: np.array):
     logger.info("function starts")
-    # Прогноз на основе тестовых данных
-    # Используем сигнатуру модели
-    infer = model.signatures["serving_default"]
-
-    # Список для хранения всех предсказаний
-    all_predictions = []
-
-    # Предполагаем, что 'test' - это батчированный датасет
-    for features, labels in test:
-        # Преобразуем фичи в тензор, если это необходимо
-        input_tensor = tf.convert_to_tensor(features, dtype=tf.float32)
-
-        # Получаем предсказания от модели
-        y_pred = infer(input_tensor=input_tensor)
-
-        # Преобразуем предсказания в numpy массив и добавляем в список
-        all_predictions.append(y_pred.numpy())
-
-    # После того как обработаны все батчи, объединяем предсказания в один numpy массив
-    y_pred = np.concatenate(all_predictions, axis=0)
-
-
-    y_true = []
-    # Проход по всему датасету test
-    for x, y in test:
-        # Собираем истинные метки из датасета test
-        y_true.extend(y.numpy())  # Преобразуем тензор меток в numpy и добавляем в список
-
-    y_pred = np.argmax(y_pred, axis=1)
-    y_true = np.argmax(y_true, axis=1)
 
     y_true = np.array(y_true)
     y_pred = np.array(y_pred)
