@@ -10,7 +10,7 @@ logger = setup_logger("load_train_test_val")
 def load_train_test_val(directory: str,
                         batch_size: int,
                         image_size: tuple[int, int],
-                        shuffle: bool = False,
+                        shuffle: bool = True,
                         seed: int = 42,
                         validation_split: float = 0.2,
                         data_format: str = 'channels_last',
@@ -70,17 +70,20 @@ def load_train_test_val(directory: str,
     - В конце функция возвращает три разделённых набора данных для дальнейшего использования.
     """
     logger.info('Loading data')
-    # train_dataset, test_dataset = keras.utils.image_dataset_from_directory(directory,
-    #                                                                       batch_size=batch_size,
-    #                                                                       image_size=image_size,
-    #                                                                       shuffle=shuffle,
-    #                                                                       seed=seed,
-    #                                                                       validation_split=validation_split,
-    #                                                                       data_format=data_format,
-    #                                                                       labels=labels,
-    #                                                                       # class_names=["0", "1"],  # список классов, которые необходимо загрузить
-    #                                                                       subset='both')
-    #
+    train_dataset, test_dataset = keras.utils.image_dataset_from_directory(directory,
+                                                                          # batch_size=batch_size,
+                                                                          image_size=image_size,
+                                                                          shuffle=shuffle,
+                                                                          seed=seed,
+                                                                          validation_split=validation_split,
+                                                                          data_format=data_format,
+                                                                          labels=labels,
+                                                                          label_mode='categorical',
+                                                                          # class_names=["0", "1"],  # список классов, которые необходимо загрузить
+                                                                          subset='both',
+                                                                          verbose=True
+                                                                          )
+
     #
     # # Prefetching samples in GPU memory helps maximize GPU utilization.
     # # train_dataset = train_dataset.prefetch(tf_data.AUTOTUNE)
@@ -93,11 +96,13 @@ def load_train_test_val(directory: str,
     # # test_dataset = test_dataset.unbatch()
     # test_dataset = test_dataset.map(lambda x, y: (x, tf.one_hot(y, depth=10)))
     # # test_dataset = test_dataset.batch(batch_size)
-    data_loader = CustomImageDataLoader(data_dir=directory, img_size=image_size, batch_size=batch_size, test_split=validation_split)
-    train_dataset = data_loader.get_train_data()
-    test_dataset = data_loader.get_test_data()
-    class_names = data_loader.get_class_names()
-    print("Class names:", class_names)
+
+
+    # data_loader = CustomImageDataLoader(data_dir=directory, img_size=image_size, batch_size=batch_size, test_split=validation_split)
+    # train_dataset = data_loader.get_train_data()
+    # test_dataset = data_loader.get_test_data()
+    # class_names = data_loader.get_class_names()
+    # print("Class names:", class_names)
 
     logger.info('Data loaded')
     return train_dataset, test_dataset

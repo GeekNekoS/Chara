@@ -1,5 +1,6 @@
 import os
 os.environ["KERAS_BACKEND"] = "tensorflow"
+from tensorflow.keras.applications import ResNet50
 from module.project_logging import setup_logger
 import tensorflow as tf
 import tensorflow.keras as keras
@@ -54,46 +55,84 @@ def create_model(input_shape: tuple, num_classes: int = 58) -> tf.keras.Model:
       - При возникновении ошибки в процессе создания модели логирует подробное сообщение об ошибке.
       """
     logger.info(f"start of creating model, shape: {input_shape}, num_classes: {num_classes}")
-
-    inputs = keras.Input(shape=input_shape)
-    # x = data_augmentation(inputs)
-    x = layers.Rescaling(1. / 255)(inputs)
-    # x = layers.RandomFlip()(x)
-    # x = layers.RandomRotation(0.1)(x)
-    # x = layers.RandomZoom(height_factor=0.2, width_factor=0.2)(x)
-    x = layers.Conv2D(16, (3, 3), activation='relu', padding='same')(x)
-    # x = layers.BatchNormalization()(x)
-    x = layers.MaxPooling2D(2)(x)
-    x = layers.Conv2D(32, (3, 3), activation='relu', padding='same')(x)
-    # x = layers.BatchNormalization()(x)
-    x = layers.MaxPooling2D(2)(x)
-    x = layers.Conv2D(64, (3, 3), activation='relu', padding='same')(x)
-    # x = layers.BatchNormalization()(x)
-    x = layers.MaxPooling2D(2)(x)
-    # x = layers.Conv2D(256, (3, 3), activation='relu', padding='same')(x)
-    # x = layers.BatchNormalization()(x)
+    #
+    # inputs = keras.Input(shape=input_shape)
+    # # x = data_augmentation(inputs)
+    # x = layers.Rescaling(1. / 255)(inputs)
+    # # x = layers.RandomFlip()(x)
+    # # x = layers.RandomRotation(0.1)(x)
+    # # x = layers.RandomZoom(height_factor=0.2, width_factor=0.2)(x)
+    # x = layers.Conv2D(16, (3, 3), activation='relu', padding='same')(x)
+    # # x = layers.BatchNormalization()(x)
     # x = layers.MaxPooling2D(2)(x)
-    x = layers.Dropout(0.2)(x)
+    # x = layers.Conv2D(32, (3, 3), activation='relu', padding='same')(x)
+    # # x = layers.BatchNormalization()(x)
+    # x = layers.MaxPooling2D(2)(x)
+    # x = layers.Conv2D(64, (3, 3), activation='relu', padding='same')(x)
+    # # x = layers.BatchNormalization()(x)
+    # x = layers.MaxPooling2D(2)(x)
+    # # x = layers.Conv2D(256, (3, 3), activation='relu', padding='same')(x)
+    # # x = layers.BatchNormalization()(x)
+    # # x = layers.MaxPooling2D(2)(x)
+    # x = layers.Dropout(0.2)(x)
+    # x = layers.Flatten()(x)
+    # # x = layers.Dense(512, activation="relu")(x)
+    # # x = layers.Dropout(0.2)(x)
+    # # x = layers.Dense(512, activation="relu")(x)
+    # # x = layers.Dropout(0.2)(x)
+    # x = layers.Dense(128, activation="relu")(x)
+    # # x = layers.Dropout(0.2)(x)
+    #
+    #
+    # outputs = layers.Dense(num_classes, activation='softmax')(x)
+    #
+    # model = keras.Model(inputs=inputs, outputs=outputs, name="model")
+    #
+    #
+
+    inputs = tf.keras.Input(shape=input_shape)
+
+    # Блок 1
+    x = layers.Conv2D(32, (3, 3), padding="same")(inputs)
+    x = layers.BatchNormalization()(x)
+    x = layers.ReLU()(x)
+    x = layers.Conv2D(64, (3, 3), padding="same")(x)
+    x = layers.BatchNormalization()(x)
+    x = layers.ReLU()(x)
+    x = layers.MaxPooling2D((2, 2))(x)
+    x = layers.Dropout(0.5)(x)
+
+    # Блок 2
+    x = layers.Conv2D(64, (3, 3), padding="same")(x)
+    x = layers.BatchNormalization()(x)
+    x = layers.ReLU()(x)
+    x = layers.Conv2D(128, (3, 3), padding="same")(x)
+    x = layers.BatchNormalization()(x)
+    x = layers.ReLU()(x)
+    x = layers.MaxPooling2D((2, 2))(x)
+    x = layers.Dropout(0.5)(x)
+
+    # Блок 3
+    x = layers.Conv2D(128, (3, 3), padding="same")(x)
+    x = layers.BatchNormalization()(x)
+    x = layers.ReLU()(x)
+    x = layers.Conv2D(128, (3, 3), padding="same")(x)
+    x = layers.BatchNormalization()(x)
+    x = layers.ReLU()(x)
+    x = layers.MaxPooling2D((2, 2))(x)
+    x = layers.Dropout(0.5)(x)
+
+    # Полносвязный слой
     x = layers.Flatten()(x)
-    # x = layers.Dense(512, activation="relu")(x)
-    # x = layers.Dropout(0.2)(x)
-    # x = layers.Dense(512, activation="relu")(x)
-    # x = layers.Dropout(0.2)(x)
-    x = layers.Dense(128, activation="relu")(x)
-    # x = layers.Dropout(0.2)(x)
+    x = layers.Dense(256)(x)
+    x = layers.BatchNormalization()(x)
+    x = layers.ReLU()(x)
+    x = layers.Dropout(0.5)(x)
     outputs = layers.Dense(num_classes, activation='softmax')(x)
+    # Создаем модель, которая будет извлекать признаки из изображений
+    model = keras.Model(inputs=inputs, outputs=outputs)
 
-    model = keras.Model(inputs=inputs, outputs=outputs, name="model")
 
-    # # Create a model using a pretrained backbone
-    # backbone = keras_cv.models.EfficientNetV2Backbone.from_preset(
-    #     "efficientnetv2_b0_imagenet"
-    # )
-    # model = keras_cv.models.ImageClassifier(
-    #     backbone=backbone,
-    #     num_classes=num_classes,
-    #     activation="softmax",
-    # )
 
     logger.info("model created successfully")
     return model
