@@ -132,8 +132,6 @@ def create_model(input_shape: tuple, num_classes: int = 58) -> tf.keras.Model:
     # Создаем модель, которая будет извлекать признаки из изображений
     model = keras.Model(inputs=inputs, outputs=outputs)
 
-
-
     logger.info("model created successfully")
     return model
 

@@ -37,7 +37,7 @@ def main(directory,
 if __name__ == '__main__':
     directory = '/mnt/d/project_practicum/dataset'
     # directory = '/mnt/d/project_practicum/mnist_images'
-    batch_size = 64
+    batch_size = 16
     image_size = (64, 64)   # (28, 28) (128, 128)
     num_classes = 58
     epochs = 100
