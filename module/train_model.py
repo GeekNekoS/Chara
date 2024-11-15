@@ -69,8 +69,9 @@ def train_model(train_dataset,
     logger.info(f"training starts with batch_size: {batch_size}, image_size: {image_size}, num_classes: {num_classes}")
     try:
         model = create_model(input_shape=image_size + (3,), num_classes=num_classes)
+
         # Показать модель
-        model.summary()
+
         metrics = [
             keras.metrics.CategoricalAccuracy(),
         ]
@@ -79,6 +80,7 @@ def train_model(train_dataset,
             loss='categorical_crossentropy',
             metrics=metrics
         )
+        model.summary()
         # Определите колбек для сохранения модели
         # checkpoint_callback = tf.keras.callbacks.ModelCheckpoint(
         #     filepath='models/model.keras',  # Путь для сохранения модели

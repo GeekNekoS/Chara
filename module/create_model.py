@@ -92,6 +92,12 @@ def create_model(input_shape: tuple, num_classes: int = 58) -> tf.keras.Model:
 
     inputs = tf.keras.Input(shape=input_shape)
 
+    # Блок аугментации данных
+    # x = layers.RandomFlip("horizontal")(inputs)  # Случайное горизонтальное отражение
+    # x = layers.RandomRotation(0.3)(x)  # Случайное вращение (до 10%)
+    # x = layers.RandomZoom(0.1)(x)  # Случайный зум
+    # x = layers.RandomContrast(0.3)(x)  # Случайная контрастность
+
     # Блок 1
     x = layers.Conv2D(32, (3, 3), padding="same")(inputs)
     x = layers.BatchNormalization()(x)

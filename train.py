@@ -21,15 +21,15 @@ def main(directory,
          learning_rate
          ):
     train_dataset, test_dataset = load_train_test_val(directory, batch_size, image_size)
-    # train_model(
-    #     train_dataset=train_dataset,
-    #     test_dataset=test_dataset,
-    #     batch_size=batch_size,
-    #     image_size=image_size,
-    #     num_classes = num_classes,
-    #     epochs=epochs,
-    #     learning_rate=learning_rate
-    # )
+    train_model(
+        train_dataset=train_dataset,
+        test_dataset=test_dataset,
+        batch_size=batch_size,
+        image_size=image_size,
+        num_classes = num_classes,
+        epochs=epochs,
+        learning_rate=learning_rate
+    )
 
     predicted_classes, labels = predict_class(test_dataset, batch_size, image_size)
     evaluate_model(predicted_classes, labels)
