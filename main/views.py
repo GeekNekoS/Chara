@@ -68,7 +68,7 @@ class ImageUploadView(View):
         img_array = np.expand_dims(img_array, axis=0)
 
         # Получаем переменные окружения для TensorFlow Serving
-        TF_SERVING_HOST = os.getenv("TF_SERVING_HOST", "localhost")
+        TF_SERVING_HOST = os.getenv("TF_SERVING_HOST", "flask_api")
         TF_SERVING_PORT = os.getenv("TF_SERVING_PORT", "5000")
 
         # Формируем URL для обращения к TensorFlow Serving

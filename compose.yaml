@@ -9,7 +9,7 @@ services:
     environment:
       # Задайте здесь переменные окружения, если нужно
       - DJANGO_ALLOWED_HOSTS=*
-      - TF_SERVING_HOST=localhost  # Имя хоста для обращения к TensorFlow Serving из Django
+      - TF_SERVING_HOST=flask_api  # Имя хоста для обращения к TensorFlow Serving из Django
       - TF_SERVING_PORT=5000
 #    depends_on:
 #      - flask_api  # Обеспечивает запуск Inference Server перед Django
@@ -21,6 +21,7 @@ services:
       - .:/app  # Монтируем текущую директорию в контейнер
     networks:
       - app_network
+
 
   flask-api:
     build:
