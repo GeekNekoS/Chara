@@ -17,6 +17,11 @@
  - Install dependencies:  `pip install -r requirements.txt`
 <br /> <br />
 
+## Docker launch
+`docker-compose -p chara up --build`
+
+## Model API
+`http://localhost:8501/v1/models/model/versions/1`
 
 <a name="project_structure"></a> 
 # Project structure

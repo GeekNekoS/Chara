@@ -3,28 +3,21 @@ import tensorflow as tf
 from sklearn.metrics import confusion_matrix, accuracy_score, precision_score, recall_score, f1_score
 import matplotlib.pyplot as plt
 import numpy as np
+import seaborn as sns
+
 
 logger = setup_logger("evaluate_model")
 
 
-def evaluate_model(model: tf.keras.Model, history, test: tf.data.Dataset):
+def evaluate_model(y_pred: np.array, y_true: np.array):
     logger.info("function starts")
-    # Прогноз на основе тестовых данных
-    y_pred = model.predict(test, batch_size=64)
-
-    y_true = []
-    # Проход по всему датасету test
-    for x, y in test:
-        # Собираем истинные метки из датасета test
-        y_true.extend(y.numpy())  # Преобразуем тензор меток в numpy и добавляем в список
-
-    y_pred = np.argmax(y_pred, axis=1)
-    y_true = np.argmax(y_true, axis=1)
 
     y_true = np.array(y_true)
     y_pred = np.array(y_pred)
-
+    class_names = [i for i in range(10)]
     cm = confusion_matrix(y_true, y_pred)
+    plot_confusion_matrix(y_true, y_pred, class_names)
+
     accuracy = accuracy_score(y_true, y_pred)
     precision = precision_score(y_true, y_pred, average='weighted')
     recall = recall_score(y_true, y_pred, average='weighted')
@@ -59,5 +52,26 @@ def evaluate_model(model: tf.keras.Model, history, test: tf.data.Dataset):
     #
     # plt.show()
     logger.info("successful ended")
+
+def plot_confusion_matrix(y_true, y_pred, class_names):
+    """
+    Отображает матрицу ошибок в виде таблицы.
+
+    :param y_true: истинные метки классов
+    :param y_pred: предсказанные метки классов
+    :param class_names: список с названиями классов
+    """
+    # Создаём матрицу ошибок
+    cm = confusion_matrix(y_true, y_pred)
+
+    # Визуализируем матрицу ошибок с помощью heatmap из seaborn
+    plt.figure(figsize=(10, 8))
+    sns.heatmap(cm, annot=True, fmt='d', cmap='Blues', xticklabels=class_names, yticklabels=class_names)
+
+    # Оформляем график
+    plt.xlabel('Predicted Labels')
+    plt.ylabel('True Labels')
+    plt.title('Confusion Matrix')
+    plt.show()
 
 
