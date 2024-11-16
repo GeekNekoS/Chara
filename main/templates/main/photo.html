@@ -2,6 +2,7 @@
 
 {% block title %}Загрузка фото{% endblock %}
 {% block upload_photo %}
+    <h3>Загрузить фото для распознавания класса</h3>
     <form method="post" enctype="multipart/form-data" action="{% url 'image_upload' %}">
       {% csrf_token %}
        {{ form.as_p }}

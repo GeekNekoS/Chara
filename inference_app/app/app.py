@@ -1,11 +1,17 @@
 from flask import Flask, request, jsonify
 import tensorflow as tf
 import numpy as np
+import  os
+
 
 app = Flask(__name__)
 
 # Загрузка модели
-MODEL_PATH = "/app/models/1/model.keras"
+# MODEL_PATH = "/app/models/1/model.keras"
+MODEL_PATH = "models/1/model.keras"
+# Получаем абсолютный путь относительно текущего скрипта
+MODEL_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", '..', MODEL_PATH)
+
 model = tf.keras.models.load_model(MODEL_PATH)
 
 

@@ -2,7 +2,22 @@
 
 {% block title %}Загрузка фото{% endblock %}
 {% block upload_photo %}
-    <h1>Prediction Result</h1>
-    <p>{{ result }}</p>
+<h1>Результат предсказания</h1>
+{#    {{ result }}#}
+    {% if result %}
+        {% if result.image %}
+          <h3>Умпешно загружена картинка под названием: {{ result.image.title }}</h3>
+          <img src="{{ result.image.image.url}}" alt="connect" style="height:200px">
+        {% endif %}
+    <div>
+        <h3>Предсказанный класс: {{ result.class_name }}</h3>
+        <p>Вероятность: {{ result.confidence }}%</p>
+    </div>
+    <div>
+        <p>Predictions: {{ result.predictions }}</p>
+    </div>
+        {% else %}
+        <p>Ошибка при получении предсказания.</p>
+    {% endif %}
 {% endblock %}
 
