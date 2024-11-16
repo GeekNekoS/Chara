@@ -8,6 +8,7 @@ import numpy as np
 from PIL import Image
 import base64
 from io import BytesIO
+from user_photo.settings import MEDIA_URL
 
 
 class IndexView(View):
@@ -38,6 +39,12 @@ class ImageUploadView(View):
             # Отправляем на инференс сервер и получаем ответ
             prediction_result = self.handle_uploaded_file(file_path)
             prediction_result['image'] = img_obj
+            # Имя файла в папке media
+            filepath_types = "images/person_type.jpg"  # имя файла с типами личности
+            # Формирование URL к фото
+            image_url = f"{MEDIA_URL}{filepath_types}"
+            prediction_result['image_types_url'] = image_url
+
             # Передаем результат в шаблон
             return render(request, 'main/result.html', {'result': prediction_result})
 
@@ -48,7 +55,7 @@ class ImageUploadView(View):
         img = Image.open(file_path)
 
         # Изменяем размер изображения в соответствии с требованиями модели
-        img_resized = img.resize((28, 28))  # Пример: размер 224x224 для большинства моделей
+        img_resized = img.resize((64, 64))  # Пример: размер 224x224 для большинства моделей
 
         # Преобразуем изображение в numpy массив и нормализуем его
         img_array = np.array(img_resized) / 255.0  # Нормализация изображений (если требуется)
@@ -96,7 +103,7 @@ class ImageUploadView(View):
     def process_predictions(self, predictions):
         # Находим индекс максимальной вероятности и саму вероятность
         predicted_class = np.argmax(predictions)
-        print(predictions)
+        # print(predictions)
         confidence = predictions[predicted_class]
         result = {}
         result["confidence"] = round(confidence * 100, 2)
@@ -108,7 +115,7 @@ class ImageUploadView(View):
     @staticmethod
     def get_class_name(class_index):
         # Здесь можно использовать словарь классов, если у вас есть такое соответствие
-        class_names = [f"Цифра {i}" for i in range(10)]  # Пример имен классов
+        class_names = [f"Психологический тип личности {i}" for i in range(58)]  # Пример имен классов
         return class_names[class_index] if class_index < len(class_names) else "Unknown class"
 
     @staticmethod

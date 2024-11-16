@@ -20,8 +20,17 @@
 ## Docker launch
 `docker-compose -p chara up --build`
 
+## Запуск сервисов локально без докера
+ - Запуск сайта `python3 manage.py runserver`
+ - Запуск инференс-сервера `python3 inference_app/app/app.py`
+
 ## Model API
-`http://localhost:8501/v1/models/model/versions/1`
+`http://localhost:5000/predict`
+ - Формат отправки и получения json
+ - Данные на отправку в модель: `data = { "input": img_array.tolist()}`
+ - Ответ инференс-сервера: `{"predictions": predictions}`
+
+
 
 <a name="project_structure"></a> 
 # Project structure

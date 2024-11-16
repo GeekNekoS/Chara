@@ -6,16 +6,23 @@
 {#    {{ result }}#}
     {% if result %}
         {% if result.image %}
-          <h3>Умпешно загружена картинка под названием: {{ result.image.title }}</h3>
+          <h3>Успешно загружена картинка под названием: {{ result.image.title }}</h3>
           <img src="{{ result.image.image.url}}" alt="connect" style="height:200px">
         {% endif %}
     <div>
         <h3>Предсказанный класс: {{ result.class_name }}</h3>
         <p>Вероятность: {{ result.confidence }}%</p>
     </div>
-    <div>
-        <p>Predictions: {{ result.predictions }}</p>
-    </div>
+        <div>
+            <p>
+                Смотрите полное название в таблице ниже
+            </p>
+            <p>
+                {% if result.image_types_url %}
+                    <img src="{{ result.image_types_url }}" alt="Image" style="width:700px">
+                {% endif %}
+            </p>
+        </div>
         {% else %}
         <p>Ошибка при получении предсказания.</p>
     {% endif %}

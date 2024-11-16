@@ -91,49 +91,37 @@ def create_model(input_shape: tuple, num_classes: int = 58) -> tf.keras.Model:
     #
 
     inputs = tf.keras.Input(shape=input_shape)
-
-    # Блок аугментации данных
+    #
+    # # Блок аугментации данных
     # x = layers.RandomFlip("horizontal")(inputs)  # Случайное горизонтальное отражение
     # x = layers.RandomRotation(0.3)(x)  # Случайное вращение (до 10%)
     # x = layers.RandomZoom(0.1)(x)  # Случайный зум
     # x = layers.RandomContrast(0.3)(x)  # Случайная контрастность
 
-    # Блок 1
-    x = layers.Conv2D(32, (3, 3), padding="same")(inputs)
-    x = layers.BatchNormalization()(x)
-    x = layers.ReLU()(x)
-    x = layers.Conv2D(64, (3, 3), padding="same")(x)
-    x = layers.BatchNormalization()(x)
-    x = layers.ReLU()(x)
-    x = layers.MaxPooling2D((2, 2))(x)
-    x = layers.Dropout(0.5)(x)
+    def conv_block(x, cards):
+        x = layers.Conv2D(cards, (3, 3), padding="same")(x)
+        x = layers.BatchNormalization()(x)
+        x = layers.ReLU()(x)
+        x = layers.Conv2D(cards * 2, (3, 3), padding="same")(x)
+        x = layers.BatchNormalization()(x)
+        x = layers.ReLU()(x)
+        x = layers.MaxPooling2D((2, 2))(x)
+        x = layers.Dropout(0.4)(x)
+        return x
 
-    # Блок 2
-    x = layers.Conv2D(64, (3, 3), padding="same")(x)
-    x = layers.BatchNormalization()(x)
-    x = layers.ReLU()(x)
-    x = layers.Conv2D(128, (3, 3), padding="same")(x)
-    x = layers.BatchNormalization()(x)
-    x = layers.ReLU()(x)
-    x = layers.MaxPooling2D((2, 2))(x)
-    x = layers.Dropout(0.5)(x)
+    # Блоки
+    x = conv_block(inputs, 32)
+    x = conv_block(x, 64)
+    x = conv_block(x, 128)
 
-    # Блок 3
-    x = layers.Conv2D(128, (3, 3), padding="same")(x)
-    x = layers.BatchNormalization()(x)
-    x = layers.ReLU()(x)
-    x = layers.Conv2D(128, (3, 3), padding="same")(x)
-    x = layers.BatchNormalization()(x)
-    x = layers.ReLU()(x)
-    x = layers.MaxPooling2D((2, 2))(x)
-    x = layers.Dropout(0.5)(x)
-
-    # Полносвязный слой
     x = layers.Flatten()(x)
-    x = layers.Dense(256)(x)
-    x = layers.BatchNormalization()(x)
-    x = layers.ReLU()(x)
-    x = layers.Dropout(0.5)(x)
+    # Полносвязный слой
+    x = layers.Dense(512, activation="relu")(x)
+    x = layers.Dropout(0.2)(x)
+    x = layers.Dense(256, activation="relu")(x)
+    x = layers.Dropout(0.2)(x)
+    x = layers.Dense(128, activation="relu")(x)
+    x = layers.Dropout(0.2)(x)
     outputs = layers.Dense(num_classes, activation='softmax')(x)
     # Создаем модель, которая будет извлекать признаки из изображений
     model = keras.Model(inputs=inputs, outputs=outputs)
