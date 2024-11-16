@@ -82,22 +82,22 @@ def train_model(train_dataset,
         )
         model.summary()
         # Определите колбек для сохранения модели
-        # checkpoint_callback = tf.keras.callbacks.ModelCheckpoint(
-        #     filepath='models/model.keras',  # Путь для сохранения модели
-        #     save_weights_only=False,  # Сохранять всю модель, а не только веса
-        #     save_best_only=True,  # Сохранять только лучшую модель (по метрике)
-        #     monitor='val_accuracy',  # Мониторить метрику (например, валидационную потерю)
-        #     mode='max',  # Сохранять, если метрика уменьшается
-        #     verbose=1  # Логирование процесса
-        # )
-        saved_model_callback = SavedModelCallback(
-            save_dir='models/model',
-            monitor='val_categorical_accuracy',
-            mode='max',
-            save_best_only=True,
-            verbose=1
-
+        best_model_callback = tf.keras.callbacks.ModelCheckpoint(
+            filepath='models/1/model.keras',  # Путь для сохранения модели
+            save_weights_only=False,  # Сохранять всю модель, а не только веса
+            save_best_only=True,  # Сохранять только лучшую модель (по метрике)
+            monitor='val_categorical_accuracy',  # Мониторить метрику (например, валидационную потерю)
+            mode='max',  # Сохранять, если метрика уменьшается
+            verbose=1  # Логирование процесса
         )
+        # saved_model_callback = SavedModelCallback(
+        #     save_dir='models/1/model.keras',
+        #     monitor='val_categorical_accuracy',
+        #     mode='max',
+        #     save_best_only=True,
+        #     verbose=1
+        #
+        # )
         # Определите колбек для ранней остановки
         early_stopping_callback = tf.keras.callbacks.EarlyStopping(
             monitor='val_categorical_accuracy',  # Мониторим валидационную потерю
@@ -105,7 +105,7 @@ def train_model(train_dataset,
             verbose=1,  # Логирование ранней остановки
             restore_best_weights=True  # Восстановить лучшие веса после остановки
         )
-        callbacks = [early_stopping_callback, saved_model_callback]
+        callbacks = [early_stopping_callback, best_model_callback]
         history = model.fit(x=train_dataset,
                   # batch_size=128,
                   callbacks=callbacks,
@@ -162,7 +162,8 @@ class SavedModelCallback(Callback):
                 print(f"\n Epoch {epoch+1}: {self.monitor} improved to {current:.4f}, saving model to {self.save_dir}/model_epoch_{epoch+1}")
 
             # Создаем путь для сохранения модели
-            model_save_path = os.path.join(self.save_dir, f"model_epoch_{epoch+1}")
+            # model_save_path = os.path.join(self.save_dir, f"model_epoch_{epoch+1}")
+            model_save_path = os.path.join(self.save_dir)
             # Сохраняем модель в формате SavedModel
             tf.saved_model.save(self.model, model_save_path)
             print(f"\n Model saved to: {model_save_path}")

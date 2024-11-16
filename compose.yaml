@@ -1,21 +1,4 @@
 services:
-  tensorflow_serving:
-    image: tensorflow/serving:latest-gpu
-    container_name: tf_serving
-    ports:
-      - "8501:8501"
-    volumes:
-      - ./models:/models
-      - ./models.config:/models/models.config
-    command: >
-      tensorflow_model_server
-      --model_config_file=/models/models.config
-      --allow_version_labels_for_unavailable_models=true
-      --rest_api_port=8501
-    restart: always
-    networks:
-      - app_network
-
   django:
     build:
       context: .
@@ -28,14 +11,31 @@ services:
       - DJANGO_ALLOWED_HOSTS=*
       - TF_SERVING_HOST=tensorflow_serving  # Имя хоста для обращения к TensorFlow Serving из Django
       - TF_SERVING_PORT=8501
-    depends_on:
-      - tensorflow_serving  # Обеспечивает запуск TensorFlow Serving перед Django
+#    depends_on:
+#      - flask_api  # Обеспечивает запуск Inference Server перед Django
     command: >
       sh -c "sleep 5 && python manage.py runserver 0.0.0.0:8000"
     # Задержка на 5 секунд
     # python manage.py runserver 127.0.0.1:8000
     volumes:
       - .:/app  # Монтируем текущую директорию в контейнер
+    networks:
+      - app_network
+
+  flask-api:
+    build:
+      context: .
+      dockerfile: inference_app/Dockerfile
+    container_name: flask_api
+    ports:
+      - "5000:5000"
+    environment:
+      - TZ=Etc/UTC
+    volumes:
+      - ./inference_app:/app
+      - ./models:/app/models
+
+    restart: always
     networks:
       - app_network
 

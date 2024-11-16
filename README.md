@@ -18,7 +18,7 @@
 <br /> <br />
 
 ## Docker launch
-`docker-compose up --build`
+`docker-compose -p chara up --build`
 
 ## Model API
 `http://localhost:8501/v1/models/model/versions/1`
