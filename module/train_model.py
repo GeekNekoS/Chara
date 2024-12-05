@@ -1,14 +1,12 @@
 import os
 import tensorflow as tf
 import keras
-from sklearn.metrics import f1_score
-from tensorflow.keras import backend as K
-import numpy as np
 from tensorflow.keras.callbacks import Callback
 from module.project_logging import setup_logger
 from module.load_train_test_val import load_train_test_val
 from module.create_model import create_model
 from module.evaluate_model import evaluate_model
+import mlflow
 
 
 logger = setup_logger("train_model")
@@ -20,67 +18,31 @@ def train_model(train_dataset,
                 image_size: tuple[int, int],
                 num_classes: int = 58,
                 epochs: int = 10,
-                learning_rate: float = 1e-3
+                learning_rate: float = 1e-3,
+                model_name_prefix: str = 'model'  # Добавлен параметр для изменения имени модели
                 ):
     """
-    Обучает модель на основе изображений из заданного тренировочного и тестового датасетов, выполняя их загрузку,
-    создание модели, её компиляцию и обучение. Завершает процесс оценкой модели на тестовом наборе данных.
-
-    Параметры:
-    ----------
-    train_dataset : tf.data.Dataset
-        Датасет для обучения, содержащий батчи изображений и соответствующих меток.
-
-    test_dataset : tf.data.Dataset
-        Датасет для тестирования модели, содержащий батчи изображений и соответствующих меток.
-
-    batch_size : int
-        Размер батча для обучения модели.
-
-    image_size : tuple[int, int]
-        Размер изображений, на которых будет обучаться модель (в формате (ширина, высота)).
-
-    num_classes : int, по умолчанию 58
-        Количество классов для классификации. Определяется по количеству поддиректорий в директории с данными.
-
-    epochs : int, по умолчанию 10
-        Количество эпох для обучения модели.
-
-    learning_rate : float, по умолчанию 1e-3
-        Значение скорости обучения для оптимизатора Adam.
-
-    Возвращаемое значение:
-    ----------------------
-    None
-
-    Логика работы:
-    --------------
-    1. Функция создаёт модель с помощью функции `create_model`, передавая размер входного изображения и количество классов.
-    2. Компилирует модель с оптимизатором Adam, используя функцию потерь `categorical_crossentropy` и метрику точности.
-    3. Настроены колбеки для ранней остановки и сохранения лучшей модели на основе валидационной точности.
-    4. Модель обучается на тренировочном датасете, а затем загружается лучшая модель для её оценки на тестовом наборе данных.
-    5. Логирует процесс обучения и ошибки, если они возникнут.
-
-    Примечание:
-    -----------
-    Функция ожидает, что функция `create_model` создаёт модель для классификации с количеством классов, соответствующим
-    числу подкатегорий в директории с данными.
+    Обучает модель и отслеживает параметры и метрики с использованием MLflow.
     """
     logger.info(f"training starts with batch_size: {batch_size}, image_size: {image_size}, num_classes: {num_classes}")
     try:
         model = create_model(input_shape=image_size + (3,), num_classes=num_classes)
 
         # Показать модель
+        model.summary()
 
         metrics = [
             keras.metrics.CategoricalAccuracy(),
+            keras.metrics.Recall(),
+            keras.metrics.Precision(),
+            keras.metrics.AUC()
         ]
+
         model.compile(
             optimizer=keras.optimizers.Adam(learning_rate=learning_rate),
             loss='categorical_crossentropy',
             metrics=metrics
         )
-        model.summary()
         # Определите колбек для сохранения модели
         best_model_callback = tf.keras.callbacks.ModelCheckpoint(
             filepath='models/1/model.keras',  # Путь для сохранения модели
@@ -105,17 +67,49 @@ def train_model(train_dataset,
             verbose=1,  # Логирование ранней остановки
             restore_best_weights=True  # Восстановить лучшие веса после остановки
         )
-        callbacks = [early_stopping_callback, best_model_callback]
-        history = model.fit(x=train_dataset,
-                  # batch_size=128,
-                  callbacks=callbacks,
-                  validation_data=test_dataset,
-                  verbose=1,
-                  epochs=epochs
-                  )
-        model = tf.keras.models.load_model('models/model')
-        evaluate_model(model, history, test_dataset)
-        logger.info("training completed successfully")
+
+        # Старт сессии в MLflow
+        with mlflow.start_run():
+            # Логирование параметров
+            mlflow.log_param("batch_size", batch_size)
+            mlflow.log_param("image_size", image_size)
+            mlflow.log_param("num_classes", num_classes)
+            mlflow.log_param("epochs", epochs)
+            mlflow.log_param("learning_rate", learning_rate)
+
+            # Логируем метрики
+            history = model.fit(x=train_dataset,
+                                validation_data=test_dataset,
+                                epochs=epochs,
+                                batch_size=batch_size,
+                                verbose=1,
+                                callbacks=[early_stopping_callback, best_model_callback])
+
+            ## Запись метрик в MLflow
+            for epoch in range(epochs):
+                mlflow.log_metric("train_loss", history.history['loss'][epoch])
+                mlflow.log_metric("train_accuracy", history.history['categorical_accuracy'][epoch])
+                mlflow.log_metric("train_recall", history.history['recall'][epoch])
+                mlflow.log_metric("train_precision", history.history['precision'][epoch])
+                mlflow.log_metric("train_auc", history.history['auc'][epoch])
+                if 'val_loss' in history.history:
+                    mlflow.log_metric("val_loss", history.history['val_loss'][epoch])
+                    mlflow.log_metric("val_accuracy", history.history['val_categorical_accuracy'][epoch])
+                    mlflow.log_metric("val_recall", history.history['val_recall'][epoch])
+                    mlflow.log_metric("val_precision", history.history['val_precision'][epoch])
+                    mlflow.log_metric("val_auc", history.history['val_auc'][epoch])
+
+            # Генерация нового имени для модели с учетом эпохи или метрики
+            model_name = f"{model_name_prefix}_epoch_{epochs}_acc_{history.history['val_categorical_accuracy'][-1]:.4f}"
+
+            # Сохранение модели с уникальным именем в MLflow
+            mlflow.keras.log_model(model, model_name)
+
+            # Загружаем лучшую модель для дальнейшей оценки
+            model = tf.keras.models.load_model('models/model')
+            evaluate_model(model, history, test_dataset)
+
+            logger.info("training completed successfully")
     except Exception as exc:
         logger.error(f"An error occurred during training: {exc}")
 

@@ -18,30 +18,33 @@ def main(directory,
          image_size,
          num_classes,
          epochs,
-         learning_rate
+         learning_rate,
+         evaluate
          ):
     train_dataset, test_dataset = load_train_test_val(directory, batch_size, image_size)
-    train_model(
-        train_dataset=train_dataset,
-        test_dataset=test_dataset,
-        batch_size=batch_size,
-        image_size=image_size,
-        num_classes = num_classes,
-        epochs=epochs,
-        learning_rate=learning_rate
-    )
+    if not evaluate:
+        train_model(
+            train_dataset=train_dataset,
+            test_dataset=test_dataset,
+            batch_size=batch_size,
+            image_size=image_size,
+            num_classes = num_classes,
+            epochs=epochs,
+            learning_rate=learning_rate
+        )
 
     predicted_classes, labels = predict_class(test_dataset, batch_size, image_size)
     evaluate_model(predicted_classes, labels)
 
 if __name__ == '__main__':
-    directory = '/mnt/d/project_practicum/dataset'
+    directory = '/mnt/d/project_practicum/dataset115_fixed/dataset'
+    # directory = '/mnt/d/project_practicum/dataset'
     # directory = '/mnt/d/project_practicum/dataset_augmented'
     # directory = '/mnt/d/project_practicum/mnist_images'
-    batch_size = 16
-    image_size = (64, 64)   # (28, 28) (64, 64)
-    num_classes = 58
+    batch_size = 32
+    image_size = (64, 64)   # (28, 28) (64, 64) (256, 256)
+    num_classes = 128 # 58 10 для mnist
     epochs = 100
     learning_rate = 1e-03
-
-    main(directory, batch_size, image_size, num_classes, epochs, learning_rate)
+    evaluate = False  # False - обучить и оценить, True - только оценить
+    main(directory, batch_size, image_size, num_classes, epochs, learning_rate, evaluate=evaluate)
