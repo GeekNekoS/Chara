@@ -28,6 +28,8 @@ def create_model(input_shape: tuple = (256, 256, 3), num_classes: int = 58) -> t
 
     # Входной слой
     inputs = tf.keras.Input(shape=input_shape)
+    # Слой нормализации изображений (например, нормализуем в диапазон [0, 1])
+    x = layers.Rescaling(1./255)(inputs)  # Нормализация пикселей, делим на 255
 
     # Нормализация входных данных (если не требуется, можно убрать)
     x = tf.keras.applications.mobilenet_v2.preprocess_input(inputs)

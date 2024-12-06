@@ -1,8 +1,6 @@
 import tensorflow as tf
 import keras
-from tensorflow.keras.preprocessing.image import ImageDataGenerator
 from module.project_logging import setup_logger
-from tensorflow import data as tf_data
 
 logger = setup_logger("load_train_test_val")
 

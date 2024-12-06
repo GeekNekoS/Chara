@@ -3,10 +3,10 @@ import tensorflow as tf
 import keras
 from tensorflow.keras.callbacks import Callback
 from module.project_logging import setup_logger
-from module.load_train_test_val import load_train_test_val
 from module.create_model import create_model
 from module.evaluate_model import evaluate_model
 import mlflow
+import math
 
 
 logger = setup_logger("train_model")
@@ -32,6 +32,7 @@ def train_model(train_dataset,
         model.summary()
 
         metrics = [
+            keras.metrics.Accuracy(),
             keras.metrics.CategoricalAccuracy(),
             keras.metrics.Recall(),
             keras.metrics.Precision(),
@@ -44,7 +45,8 @@ def train_model(train_dataset,
             metrics=metrics
         )
         # Определите колбек для сохранения модели
-        best_model_callback = tf.keras.callbacks.ModelCheckpoint(
+        mlflow_callback = MlflowCallback()
+        best_model_callback_val_categorical_accuracy = tf.keras.callbacks.ModelCheckpoint(
             filepath='models/1/model.keras',  # Путь для сохранения модели
             save_weights_only=False,  # Сохранять всю модель, а не только веса
             save_best_only=True,  # Сохранять только лучшую модель (по метрике)
@@ -52,21 +54,26 @@ def train_model(train_dataset,
             mode='max',  # Сохранять, если метрика уменьшается
             verbose=1  # Логирование процесса
         )
-        # saved_model_callback = SavedModelCallback(
-        #     save_dir='models/1/model.keras',
-        #     monitor='val_categorical_accuracy',
-        #     mode='max',
-        #     save_best_only=True,
-        #     verbose=1
-        #
-        # )
+        best_model_callback_val_accuracy = tf.keras.callbacks.ModelCheckpoint(
+            filepath='models/1/model.keras',  # Путь для сохранения модели
+            save_weights_only=False,  # Сохранять всю модель, а не только веса
+            save_best_only=True,  # Сохранять только лучшую модель (по метрике)
+            monitor='val_accuracy',  # Мониторить метрику (например, валидационную потерю)
+            mode='max',  # Сохранять, если метрика уменьшается
+            verbose=1  # Логирование процесса
+        )
+
         # Определите колбек для ранней остановки
         early_stopping_callback = tf.keras.callbacks.EarlyStopping(
             monitor='val_categorical_accuracy',  # Мониторим валидационную потерю
-            patience=20,  # Количество эпох без улучшения перед остановкой
+            patience=50,  # Количество эпох без улучшения перед остановкой
             verbose=1,  # Логирование ранней остановки
             restore_best_weights=True  # Восстановить лучшие веса после остановки
         )
+
+        # Настройка трекинга и эксперимента
+        mlflow.set_tracking_uri("http://localhost:5000")  # Укажите ваш сервер MLflow, если он используется
+        mlflow.set_experiment("Psychotype Recognition")
 
         # Старт сессии в MLflow
         with mlflow.start_run():
@@ -83,7 +90,12 @@ def train_model(train_dataset,
                                 epochs=epochs,
                                 batch_size=batch_size,
                                 verbose=1,
-                                callbacks=[early_stopping_callback, best_model_callback])
+                                callbacks=[
+                                    early_stopping_callback,
+                                    best_model_callback_val_categorical_accuracy,
+                                    best_model_callback_val_accuracy,
+                                    mlflow_callback
+                                ])
 
             ## Запись метрик в MLflow
             for epoch in range(epochs):
@@ -112,6 +124,41 @@ def train_model(train_dataset,
             logger.info("training completed successfully")
     except Exception as exc:
         logger.error(f"An error occurred during training: {exc}")
+
+
+class MlflowCallback(keras.callbacks.Callback):
+    def __init__(self, save_dir: str = "mlruns/models", monitor: str = "val_categorical_accuracy", mode: str = "max"):
+        """
+        Колбек для логирования метрик и сохранения модели через MLflow.
+
+        :param save_dir: Директория для сохранения модели.
+        :param monitor: Метрика для отслеживания (например, 'val_loss', 'val_categorical_accuracy').
+        :param mode: Режим отслеживания ('min' или 'max').
+        """
+        super(MlflowCallback, self).__init__()
+        self.save_dir = save_dir
+        self.monitor = monitor
+        self.mode = mode
+        self.best = -float('inf') if mode == "max" else float('inf')
+
+
+    def on_epoch_end(self, epoch, logs=None):
+        logs = logs or {}
+        # Логируем метрики
+        for k, v in logs.items():
+            mlflow.log_metric(k, v, step=epoch)
+            # Дополнительно логируем логарифм метрик
+            if v > 0:  # Избегаем log(0) или отрицательных значений
+                mlflow.log_metric(f"log_{k}", math.log(v), step=epoch)
+
+        # Сохраняем модель при улучшении метрики
+        current = logs.get(self.monitor)
+        if current is not None:
+            if (self.mode == "max" and current > self.best) or (self.mode == "min" and current < self.best):
+                self.best = current
+                model_path = os.path.join(self.save_dir, f"model_epoch_{epoch + 1}")
+                mlflow.keras.log_model(self.model, artifact_path=model_path)
+                print(f"Model saved to MLflow at {model_path} (epoch {epoch + 1}).")
 
 
 class SavedModelCallback(Callback):
