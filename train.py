@@ -41,8 +41,8 @@ if __name__ == '__main__':
     # directory = '/mnt/d/project_practicum/dataset'
     # directory = '/mnt/d/project_practicum/dataset_augmented'
     # directory = '/mnt/d/project_practicum/mnist_images'
-    batch_size = 32
-    image_size = (64, 64)   # (28, 28) (64, 64) (256, 256)
+    batch_size = 16
+    image_size = (256, 256)   # (28, 28) (64, 64) (256, 256)
     num_classes = 128 # 58 10 для mnist
     epochs = 100
     learning_rate = 1e-03

@@ -45,7 +45,8 @@ def train_model(train_dataset,
             metrics=metrics
         )
         # Определите колбек для сохранения модели
-        mlflow_callback = MlflowCallback()
+        mlflow_callback_cat_acc = MlflowCallback(monitor="val_categorical_accuracy")
+        mlflow_callback_acc = MlflowCallback(monitor="val_accuracy")
         best_model_callback_val_categorical_accuracy = tf.keras.callbacks.ModelCheckpoint(
             filepath='models/1/model.keras',  # Путь для сохранения модели
             save_weights_only=False,  # Сохранять всю модель, а не только веса
@@ -94,7 +95,8 @@ def train_model(train_dataset,
                                     early_stopping_callback,
                                     best_model_callback_val_categorical_accuracy,
                                     best_model_callback_val_accuracy,
-                                    mlflow_callback
+                                    mlflow_callback_cat_acc,
+                                    mlflow_callback_acc
                                 ])
 
             ## Запись метрик в MLflow
