@@ -16,7 +16,7 @@ def create_model(input_shape: tuple = (256, 256, 3), num_classes: int = 58) -> t
     logger.info(f"start of creating model, shape: {input_shape}, num_classes: {num_classes}")
 
     inputs = tf.keras.Input(shape=input_shape)
-
+    x = layers.Rescaling(1. / 255)(inputs)
     # Блок 1
     x = layers.Conv2D(32, (3, 3), padding="same")(inputs)
     x = layers.BatchNormalization()(x)

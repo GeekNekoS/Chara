@@ -29,7 +29,7 @@ services:
       dockerfile: inference_app/Dockerfile
     container_name: flask_api
     ports:
-      - "5000:5000"
+      - "5001:5001"
     environment:
       - TZ=Etc/UTC
     volumes:

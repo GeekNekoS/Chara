@@ -1,6 +1,6 @@
 # Используем официальный образ TensorFlow
 FROM tensorflow/tensorflow:2.17.0
-
+#FROM tensorflow/tensorflow:latest
 # Устанавливаем рабочую директорию
 WORKDIR /app
 
@@ -15,7 +15,7 @@ RUN python -m pip uninstall -y blinker || true
 RUN pip install --no-cache-dir --ignore-installed -r /app/requirements.txt
 
 # Указываем порт для приложения
-EXPOSE 5000
+EXPOSE 5001
 
 # Запуск приложения
 CMD ["python", "app/app.py"]

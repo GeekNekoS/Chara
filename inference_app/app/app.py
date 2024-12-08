@@ -8,11 +8,13 @@ app = Flask(__name__)
 
 # Загрузка модели
 MODEL_PATH = "/app/models/1/model.keras"
-# MODEL_PATH = "models/1/model.keras"
+# MODEL_PATH = "models/2/model.keras"
 # Получаем абсолютный путь относительно текущего скрипта
 # MODEL_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", '..', MODEL_PATH)
+print(MODEL_PATH)
 
-model = tf.keras.models.load_model(MODEL_PATH)
+model = tf.keras.models.load_model(MODEL_PATH, compile=False)
+# Убедитесь, что `RandomFlip` не влияет на инференс, удалите его из preprocessing
 
 
 @app.route('/predict', methods=['POST'])
@@ -35,4 +37,4 @@ def predict():
 
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000)
+    app.run(host='0.0.0.0', port=5000, debug=True)
