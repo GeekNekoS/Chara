@@ -67,7 +67,7 @@ def train_model(train_dataset,
         # Определите колбек для ранней остановки
         early_stopping_callback = tf.keras.callbacks.EarlyStopping(
             monitor='val_categorical_accuracy',  # Мониторим валидационную потерю
-            patience=50,  # Количество эпох без улучшения перед остановкой
+            patience=100,  # Количество эпох без улучшения перед остановкой
             verbose=1,  # Логирование ранней остановки
             restore_best_weights=True  # Восстановить лучшие веса после остановки
         )
@@ -118,11 +118,6 @@ def train_model(train_dataset,
 
             # Сохранение модели с уникальным именем в MLflow
             mlflow.keras.log_model(model, model_name)
-
-            # Загружаем лучшую модель для дальнейшей оценки
-            model = tf.keras.models.load_model('models/model')
-            evaluate_model(model, history, test_dataset)
-
             logger.info("training completed successfully")
     except Exception as exc:
         logger.error(f"An error occurred during training: {exc}")

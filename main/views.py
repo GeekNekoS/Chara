@@ -69,6 +69,7 @@ class ImageUploadView(View):
 
         # Получаем переменные окружения для TensorFlow Serving
         TF_SERVING_HOST = os.getenv("TF_SERVING_HOST", "flask_api")
+        # TF_SERVING_HOST = os.getenv("TF_SERVING_HOST", "localhost")
         TF_SERVING_PORT = os.getenv("TF_SERVING_PORT", "5000")
 
         # Формируем URL для обращения к TensorFlow Serving
@@ -115,7 +116,7 @@ class ImageUploadView(View):
     @staticmethod
     def get_class_name(class_index):
         # Здесь можно использовать словарь классов, если у вас есть такое соответствие
-        class_names = [f"Психологический тип личности {i}" for i in range(58)]  # Пример имен классов
+        class_names = [f"Психологический тип личности {i}" for i in range(128)]  # Пример имен классов
         return class_names[class_index] if class_index < len(class_names) else "Unknown class"
 
     @staticmethod

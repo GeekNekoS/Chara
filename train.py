@@ -37,14 +37,12 @@ def main(directory,
     evaluate_model(predicted_classes, labels)
 
 if __name__ == '__main__':
-    directory = '/mnt/d/project_practicum/dataset115_fixed/dataset'
-    # directory = '/mnt/d/project_practicum/dataset'
-    # directory = '/mnt/d/project_practicum/dataset_augmented'
+    directory = '/mnt/d/project_practicum/dataset128_fixed/dataset'
     # directory = '/mnt/d/project_practicum/mnist_images'
     batch_size = 16
-    image_size = (256, 256)   # (28, 28) (64, 64) (256, 256)
+    image_size = (64, 64)   # (28, 28) (64, 64) (256, 256)
     num_classes = 128 # 58 10 для mnist
-    epochs = 100
+    epochs = 200
     learning_rate = 1e-03
     evaluate = False  # False - обучить и оценить, True - только оценить
     main(directory, batch_size, image_size, num_classes, epochs, learning_rate, evaluate=evaluate)
