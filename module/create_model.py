@@ -37,15 +37,15 @@ def create_model(input_shape: tuple = (256, 256, 3), num_classes: int = 58) -> t
     x = layers.MaxPooling2D((2, 2))(x)
     x = layers.Dropout(0.5)(x)
 
-    # Блок 3
-    x = layers.Conv2D(128, (3, 3), padding="same")(x)
-    x = layers.BatchNormalization()(x)
-    x = layers.ReLU()(x)
-    x = layers.Conv2D(128, (3, 3), padding="same")(x)
-    x = layers.BatchNormalization()(x)
-    x = layers.ReLU()(x)
-    x = layers.MaxPooling2D((2, 2))(x)
-    x = layers.Dropout(0.5)(x)
+    # # Блок 3
+    # x = layers.Conv2D(128, (3, 3), padding="same")(x)
+    # x = layers.BatchNormalization()(x)
+    # x = layers.ReLU()(x)
+    # x = layers.Conv2D(128, (3, 3), padding="same")(x)
+    # x = layers.BatchNormalization()(x)
+    # x = layers.ReLU()(x)
+    # x = layers.MaxPooling2D((2, 2))(x)
+    # x = layers.Dropout(0.5)(x)
 
     # Полносвязный слой
     x = layers.Flatten()(x)

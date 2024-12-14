@@ -39,7 +39,7 @@ def main(directory,
 if __name__ == '__main__':
     directory = '/mnt/d/project_practicum/dataset128_fixed/dataset'
     # directory = '/mnt/d/project_practicum/mnist_images'
-    batch_size = 16
+    batch_size = 8
     image_size = (64, 64)   # (28, 28) (64, 64) (256, 256)
     num_classes = 128 # 58 10 для mnist
     epochs = 200
