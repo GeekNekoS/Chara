@@ -36,7 +36,7 @@
 куда сохранится обработанный датасет target_dir
 5. Обучите модель: загрузите файл train.py в IDE, поменяйте настройки, если необходимо, 
 структуру модели можно поменять в файле module/create_model.py. Запустите файл train.py <br>
-![img_10.png](img_10.png)
+![images_for_readme/img_10.png](img_10.png)
 6. Все артефакты обучения сохраняются с помощью фреймворка mlflow, 
 надо поднять сервер mlflow локально на вашем компьютере.
 Чтобы запустить сервер MLflow, необходимо выполнить несколько шагов:
@@ -57,30 +57,30 @@
    По умолчанию сервер запускается на порту `5000`, 
 и он доступен по адресу: `http://localhost:5000`.
  -  Вебинтерфейс mlflow выглядит так:
-![img.png](img.png)
+![images_for_readme/img.png](images_for_readme/img.png)
  - Так выглядят все запуски обучения моделей в вашем эксперименте Psychotype Recognition
-![img_1.png](img_1.png)  
+![images_for_readme/img_1.png](images_for_readme/img_1.png)  
  - Это обученные модели во время запусков, если модель подходит по качеству,
 ее можно зарегистрировать и потом обращаться к ней по api mlflow <br>
-![img_2.png](img_2.png)
+![images_for_readme/img_2.png](images_for_readme/img_2.png)
  - Здесь страница с параметрами и артефактами обучения
-![img_3.png](img_3.png)
+![images_for_readme/img_3.png](images_for_readme/img_3.png)
  - Пример артефактов обученных моделей, откуда можно забрать лучшую версию/зарегистрировать ее
-![img_4.png](img_4.png)
+![images_for_readme/img_4.png](images_for_readme/img_4.png)
  - Пример графиков изменения ошибок и метрик во время обучения, все это на сервере mlflow
-![img_5.png](img_5.png)
+![images_for_readme/img_5.png](images_for_readme/img_5.png)
 
 7. После того как вы обучили модели и выбрали лучшую, 
 копируем файл модели model.keras из хранилища артефактов в папку проекта models/1/ <br>
 <img src="img_6.png" width="400"/><br>
 
-![img_7.png](img_7.png)
+![images_for_readme/img_7.png](images_for_readme/img_7.png)
 8. После этого можем запускать два сервиса (вебинтерфейс и инференс-сервер для модели)
  с помощью команды `docker-compose -p chara up --build`, где мы можем загрузить фото
 и получить прогноз, к какому классу принадлежит данное изображение. <br>
 - Так выглядят запущенные докер-контейнеры в Pycharm 
-![img_8.png](img_8.png)
-![img_9.png](img_9.png)
+![images_for_readme/img_8.png](images_for_readme/img_8.png)
+![images_for_readme/img_9.png](images_for_readme/img_9.png)
 
 ## Запуск Docker контейнеров для работы сервисов
 `docker-compose -p chara up --build`
