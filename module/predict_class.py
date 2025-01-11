@@ -4,7 +4,7 @@
 import tensorflow as tf
 import numpy as np
 from module.project_logging import setup_logger
-from module.load_train_test_val import load_train_test_val
+from module.load_train_test import load_train_test
 
 
 logger = setup_logger('predict_class')
@@ -14,8 +14,6 @@ def predict_class_infer(test_dataset, batch_size, image_size):
     logger.info("Predicting class of images started")
     model = tf.saved_model.load('models/model')
     logger.info("Сигнатуры модели", model.signatures)
-    # logger.info("Inputs:", infer.inputs)
-    # logger.info("Outputs:", infer.outputs)
     infer = model.signatures["serving_default"]
 
     # Разворачиваем тестовый датасет (анбатчинг)
