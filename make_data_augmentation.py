@@ -8,6 +8,7 @@ destination_dir = '/mnt/d/project_practicum/dataset_augmented'  # Путь к п
 batch_size = 32  # Размер пакета для генератора
 target_size = (256, 256)  # Размер изображений после аугментации
 
+
 # Функция для обработки одной категории
 def process_category(category):
     # Путь к категории и папке назначения
@@ -47,6 +48,7 @@ def process_category(category):
     for _ in range(50):  # Количество пакетов изображений для аугментации, можно увеличить
         next(flow)
 
+
 # Главная функция для запуска параллельной обработки
 def main():
     # Получаем список категорий (папок) в исходной папке
@@ -57,6 +59,7 @@ def main():
         pool.map(process_category, categories)
 
     print("Аугментация завершена!")
+
 
 if __name__ == "__main__":
     main()
