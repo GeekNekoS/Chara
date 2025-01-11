@@ -31,6 +31,7 @@ def evaluate_model(y_pred: np.array, y_true: np.array):
     logger.info(f"F1 Score: {f1:.4f}")
     logger.info("successful ended")
 
+
 def plot_confusion_matrix(y_true, y_pred, class_names):
     """
     Отображает матрицу ошибок в виде таблицы.
