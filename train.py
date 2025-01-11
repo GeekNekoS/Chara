@@ -28,7 +28,7 @@ def main(directory,
             test_dataset=test_dataset,
             batch_size=batch_size,
             image_size=image_size,
-            num_classes = num_classes,
+            num_classes=num_classes,
             epochs=epochs,
             learning_rate=learning_rate
         )
@@ -42,7 +42,7 @@ if __name__ == '__main__':
     batch_size = 16
     image_size = (64, 64)   # (28, 28) (64, 64) (256, 256)
     num_classes = 128  # 58 10 для mnist
-    epochs = 50
+    epochs = 1
     learning_rate = 1e-03
     evaluate = False  # False - обучить и оценить, True - только оценить
     main(directory, batch_size, image_size, num_classes, epochs, learning_rate, evaluate=evaluate)
