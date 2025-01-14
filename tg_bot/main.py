@@ -14,7 +14,7 @@ from ultralytics import YOLO
 API_TOKEN = ""
 
 # Пусть к модели Keras
-MODEL_PATH = "../models/4/best (1).pt"
+MODEL_PATH = "../models/4/weights.pt"
 
 # Пусть к классификатору Haar Cascade для обнаружения лиц
 CASCADE_PATH = cv2.data.haarcascades + "haarcascade_frontalface_default.xml"
