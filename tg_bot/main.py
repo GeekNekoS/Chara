@@ -11,7 +11,7 @@ from ultralytics import YOLO
 
 
 # Замените на токен вашего бота
-API_TOKEN = "8100688188:AAH99gxLH0qZlv3AdQc4GmfAMWhkhvDLaoc"
+API_TOKEN = ""
 
 # Пусть к модели Keras
 MODEL_PATH = "../models/3/model.keras"
