@@ -3,10 +3,11 @@ import tensorflow as tf
 import keras
 from tensorflow.keras.callbacks import Callback
 from module.project_logging import setup_logger
-from module.create_model import create_model_from_ready
+from module.create_model import *
 from module.evaluate_model import evaluate_model
 import mlflow
 import math
+import seaborn as sns
 
 
 logger = setup_logger("train_model")
@@ -26,7 +27,8 @@ def train_model(train_dataset,
     """
     logger.info(f"training starts with batch_size: {batch_size}, image_size: {image_size}, num_classes: {num_classes}")
     try:
-        model = create_model_from_ready(input_shape=image_size + (3,), num_classes=num_classes)
+        # model = create_model_from_ready(input_shape=image_size + (3,), num_classes=num_classes)
+        model = create_model(input_shape=image_size + (3,), num_classes=num_classes)
 
         # Показать модель
         model.summary()
@@ -48,7 +50,7 @@ def train_model(train_dataset,
         mlflow_callback_cat_acc = MlflowCallback(monitor="val_categorical_accuracy")
         mlflow_callback_acc = MlflowCallback(monitor="val_accuracy")
         best_model_callback_val_categorical_accuracy = tf.keras.callbacks.ModelCheckpoint(
-            filepath='/models/2/model.keras',  # Путь для сохранения модели
+            filepath='/models/1/model.keras',  # Путь для сохранения модели
             save_weights_only=False,  # Сохранять всю модель, а не только веса
             save_best_only=True,  # Сохранять только лучшую модель (по метрике)
             monitor='val_categorical_accuracy',  # Мониторить метрику (например, валидационную потерю)
@@ -56,7 +58,7 @@ def train_model(train_dataset,
             verbose=1  # Логирование процесса
         )
         best_model_callback_val_accuracy = tf.keras.callbacks.ModelCheckpoint(
-            filepath='/models/2/model.keras',  # Путь для сохранения модели
+            filepath='/models/1/model.keras',  # Путь для сохранения модели
             save_weights_only=False,  # Сохранять всю модель, а не только веса
             save_best_only=True,  # Сохранять только лучшую модель (по метрике)
             monitor='val_accuracy',  # Мониторить метрику (например, валидационную потерю)
@@ -99,8 +101,14 @@ def train_model(train_dataset,
                                     mlflow_callback_acc
                                 ])
 
-            ## Запись метрик в MLflow
+            history_dict = history.history
+            print(history_dict)
+
+            sns.lineplot(x=range(len(history_dict['loss'])), y=history_dict['loss'], label="Train Loss", color="blue").save()
+
             for epoch in range(epochs):
+
+
                 mlflow.log_metric("train_loss", history.history['loss'][epoch])
                 mlflow.log_metric("train_accuracy", history.history['categorical_accuracy'][epoch])
                 mlflow.log_metric("train_recall", history.history['recall'][epoch])
@@ -207,6 +215,3 @@ class SavedModelCallback(Callback):
 
         elif self.verbose > 0:
             print(f"\n Epoch {epoch+1}: {self.monitor} did not improve from {self.best:.4f}")
-
-
-
