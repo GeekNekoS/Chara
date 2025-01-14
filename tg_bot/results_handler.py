@@ -1,4 +1,5 @@
 import json
+import numpy as np
 
 
 def handle_results(results, file_path="metrics.json"):
@@ -9,7 +10,7 @@ def handle_results(results, file_path="metrics.json"):
             answer = ''
             for result in results:
                 current_metric = metrics.get(str(result[0]))
-                answer += current_metric + f' Вероятность: {result[1]}' + '\n'
+                answer += current_metric + f' Вероятность: {result[1]:.3f}' + '\n'
             return answer
     except FileNotFoundError:
         print("Файл не найден!")

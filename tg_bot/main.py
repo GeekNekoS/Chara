@@ -6,6 +6,7 @@ from aiogram.types import Message, ContentType, FSInputFile
 from tensorflow.keras.models import load_model
 import numpy as np
 from PIL import Image
+from results_handler import handle_results
 
 # Замените на токен вашего бота
 API_TOKEN = "8100688188:AAH99gxLH0qZlv3AdQc4GmfAMWhkhvDLaoc"
@@ -63,12 +64,7 @@ async def handle_photo(message: Message):
                 input_data = preprocess_image(face)
                 prediction = model.predict(input_data)
                 sorted_prediction = sorted(enumerate(prediction[0]), key=lambda x: x[1], reverse=True)[:5]
-
-
-                # Ограничиваем длину вывода
-                prediction_str = np.array2string(prediction, precision=2, separator=',', suppress_small=True)
-                if len(prediction_str) > 1000:
-                    prediction_str = prediction_str[:1000] + "..."
+                predictions_with_probabilities = handle_results(sorted_prediction)
 
                 # Сохраняем лицо как временное изображение
                 face_path = f"downloads/face_{photo.file_id}_{i}.jpg"
@@ -76,7 +72,7 @@ async def handle_photo(message: Message):
 
                 # Отправляем лицо с предсказанием
                 input_file = FSInputFile(face_path)
-                await message.answer_photo(input_file, caption=f"Результат модели: {prediction_str}")
+                await message.answer_photo(input_file, caption=f"Результат модели:\n{predictions_with_probabilities}")
 
                 # Удаляем временное изображение
                 os.remove(face_path)
