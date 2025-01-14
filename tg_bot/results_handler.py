@@ -9,8 +9,8 @@ def handle_results(results, file_path="metrics.json"):
             metrics = json.load(file)
             answer = ''
             for result in results:
-                current_metric = metrics.get(str(result[0]))
-                answer += current_metric + f' Вероятность: {result[1]:.3f}' + '\n'
+                current_metric = metrics.get(str(result[0] + 1))
+                answer += current_metric + f' Вероятность: {result[1]:.4f}' + '\n'
             return answer
     except FileNotFoundError:
         print("Файл не найден!")

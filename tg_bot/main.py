@@ -7,18 +7,21 @@ from tensorflow.keras.models import load_model
 import numpy as np
 from PIL import Image
 from results_handler import handle_results
+from ultralytics import YOLO
+
 
 # Замените на токен вашего бота
 API_TOKEN = "8100688188:AAH99gxLH0qZlv3AdQc4GmfAMWhkhvDLaoc"
 
 # Пусть к модели Keras
-MODEL_PATH = "../models/1/model.keras"
+MODEL_PATH = "../models/3/model.keras"
 
 # Пусть к классификатору Haar Cascade для обнаружения лиц
 CASCADE_PATH = cv2.data.haarcascades + "haarcascade_frontalface_default.xml"
 
 # Загрузка модели и классификатора
-model = load_model(MODEL_PATH)
+# model = load_model(MODEL_PATH)
+model = YOLO('../models/4/best (1).pt')
 face_cascade = cv2.CascadeClassifier(CASCADE_PATH)
 
 # Инициализация бота и диспетчера
@@ -61,10 +64,13 @@ async def handle_photo(message: Message):
                 face = image[y:y + h, x:x + w]
 
                 # Предобрабатываем лицо и передаем в модель
-                input_data = preprocess_image(face)
-                prediction = model.predict(input_data)
-                sorted_prediction = sorted(enumerate(prediction[0]), key=lambda x: x[1], reverse=True)[:5]
-                predictions_with_probabilities = handle_results(sorted_prediction)
+                # input_data = preprocess_image(face)
+                # prediction = model.predict(input_data)
+                prediction = model(face)
+                prediction = [(prediction[0].probs.top5[i], prediction[0].probs.top5conf[i]) for i in range(len(prediction[0].probs.top5))]
+                # prediction = sorted(enumerate(prediction[0]), key=lambda x: x[1], reverse=True)[:5]
+                # print(prediction)
+                predictions_with_probabilities = handle_results(prediction)
 
                 # Сохраняем лицо как временное изображение
                 face_path = f"downloads/face_{photo.file_id}_{i}.jpg"
