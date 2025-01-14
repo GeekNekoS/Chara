@@ -2,15 +2,25 @@ import json
 import numpy as np
 
 
-def handle_results(results, file_path="metrics.json"):
-    """Загружает вопросы из JSON-файла."""
+def handle_results(
+        results,
+        metrics_file_path="metrics.json",
+        MBTILinks_file_path="MBTILinks.json",
+        MMPILinks_file_path="MMPILinks.json"
+):
     try:
-        with open(file_path, "r", encoding="utf-8") as file:
-            metrics = json.load(file)
-            answer = ''
+        with (open(metrics_file_path, "r", encoding="utf-8") as metrics,
+              open(MBTILinks_file_path, "r", encoding="utf-8") as MBTILinks,
+              open(MMPILinks_file_path, "r", encoding="utf-8") as MMPILinks):
+            metrics = json.load(metrics)
+            MBTILinks = json.load(MBTILinks)
+            MMPILinks = json.load(MMPILinks)
+            answer = []
             for result in results:
-                current_metric = metrics.get(str(result[0] + 1))
-                answer += current_metric + f' Вероятность: {result[1]:.4f}' + '\n'
+                MBTI, MMPI = metrics.get(str(result[0] + 1)).split()
+                MBTILink = MBTILinks.get(MBTI)
+                MMPILink = MMPILinks.get(MMPI)
+                answer.append((MBTI, MMPI, MBTILink, MMPILink, result[1]))
             return answer
     except FileNotFoundError:
         print("Файл не найден!")
