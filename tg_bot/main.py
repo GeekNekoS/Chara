@@ -14,14 +14,14 @@ from ultralytics import YOLO
 API_TOKEN = ""
 
 # Пусть к модели Keras
-MODEL_PATH = "../models/3/model.keras"
+MODEL_PATH = "../models/4/best (1).pt"
 
 # Пусть к классификатору Haar Cascade для обнаружения лиц
 CASCADE_PATH = cv2.data.haarcascades + "haarcascade_frontalface_default.xml"
 
 # Загрузка модели и классификатора
 # model = load_model(MODEL_PATH)
-model = YOLO('../models/4/best (1).pt')
+model = YOLO(MODEL_PATH)
 face_cascade = cv2.CascadeClassifier(CASCADE_PATH)
 
 # Инициализация бота и диспетчера

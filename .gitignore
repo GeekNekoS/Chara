@@ -1,3 +1,6 @@
 /.idea/
 /.mlruns/
 /.mlartifacts/
+/tests/
+/dataset_fixed/
+/dataset_separated/

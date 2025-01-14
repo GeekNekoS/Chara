@@ -1,4 +1,4 @@
-from module.load_train_test_val import load_train_test_val
+from module.load_train_test import load_train_test
 import pytest
 import tensorflow as tf
 import os
@@ -28,9 +28,9 @@ def test_output_shapes(create_dummy_data):
     """
     Checks that the function returns three datasets.
     """
-    train_ds, test_ds, val_ds = load_train_test_val(create_dummy_data,
-                                                    BATCH_SIZE,
-                                                    IMAGE_SIZE)
+    train_ds, test_ds, val_ds = load_train_test(create_dummy_data,
+                                                BATCH_SIZE,
+                                                IMAGE_SIZE)
     assert isinstance(train_ds, tf.data.Dataset), "Train dataset must be a tf.data.Dataset object"
     assert isinstance(test_ds, tf.data.Dataset), "Test dataset must be a tf.data.Dataset object"
     assert isinstance(val_ds, tf.data.Dataset), "Validation dataset must be a tf.data.Dataset object"
@@ -40,9 +40,9 @@ def test_split_proportions(create_dummy_data):
     """
     Checks that the data split proportions are correct.
     """
-    train_ds, test_ds, val_ds = load_train_test_val(create_dummy_data,
-                                                    BATCH_SIZE,
-                                                    IMAGE_SIZE)
+    train_ds, test_ds, val_ds = load_train_test(create_dummy_data,
+                                                BATCH_SIZE,
+                                                IMAGE_SIZE)
     train_size = sum(1 for _ in train_ds)
     test_size = sum(1 for _ in test_ds)
     val_size = sum(1 for _ in val_ds)
@@ -54,9 +54,9 @@ def test_batch_size(create_dummy_data):
     """
     Checks that the data packet size matches the given batch size.
     """
-    train_ds, test_ds, val_ds = load_train_test_val(create_dummy_data,
-                                                    BATCH_SIZE,
-                                                    IMAGE_SIZE)
+    train_ds, test_ds, val_ds = load_train_test(create_dummy_data,
+                                                BATCH_SIZE,
+                                                IMAGE_SIZE)
     for images, labels in train_ds.take(1):
         assert images.shape[0] == BATCH_SIZE, f'The packet size in the training set should be {BATCH_SIZE}'
 
@@ -65,9 +65,9 @@ def test_image_size(create_dummy_data):
     """
     Checks that images are loaded at the correct size.
     """
-    train_ds, test_ds, val_ds = load_train_test_val(create_dummy_data,
-                                                    BATCH_SIZE,
-                                                    IMAGE_SIZE)
+    train_ds, test_ds, val_ds = load_train_test(create_dummy_data,
+                                                BATCH_SIZE,
+                                                IMAGE_SIZE)
     for images, labels in train_ds.take(1):
         assert images.shape[1:3] == IMAGE_SIZE, f'Image size should be {IMAGE_SIZE}'
 
@@ -76,8 +76,8 @@ def test_channel_format(create_dummy_data):
     """
     Checks that images are loaded with the correct channel format.
     """
-    train_ds, test_ds, val_ds = load_train_test_val(create_dummy_data,
-                                                    BATCH_SIZE,
-                                                    IMAGE_SIZE)
+    train_ds, test_ds, val_ds = load_train_test(create_dummy_data,
+                                                BATCH_SIZE,
+                                                IMAGE_SIZE)
     for images, labels in train_ds.take(1):
         assert images.shape[-1] == CHANNELS_NUMBER, f"Images must have {CHANNELS_NUMBER} channels"
